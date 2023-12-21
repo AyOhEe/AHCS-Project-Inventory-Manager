@@ -1,10 +1,12 @@
 import asyncio
-import tkinter as tk
 import aiohttp_jinja2
 import jinja2
 
 from datetime import datetime
 from aiohttp import web
+
+
+from dashboard import Dashboard
 
 #time between tkinter window updates
 WINDOW_UPDATE_DELAY = 0.02
@@ -23,8 +25,8 @@ async def main():
     global loop_exit_trigger
 
 
-    #configure the tkinter window for the dashboard
-    window = tk.Tk()
+    #create the dashboard window
+    window = Dashboard()
 
     #configure the aiohttp application for the website front end with jinja for templates
     app = web.Application()
@@ -42,7 +44,7 @@ async def main():
     runner = web.AppRunner(app)
     await runner.setup()
     site = web.TCPSite(runner, 'localhost', 8080)
-    await site.start()
+    await site.start() #the web server now runs in the background
 
 
     #call cleanup when the tkinter window is closed
