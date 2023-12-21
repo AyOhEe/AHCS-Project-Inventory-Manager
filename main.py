@@ -5,38 +5,22 @@ from dashboard import Dashboard
 from website import Website
 
 #time between tkinter window updates
-WINDOW_UPDATE_DELAY = 0.02
+WINDOW_UPDATE_DELAY = 0.1
 
 
-loop_exit_trigger = False
 async def main():
-    global loop_exit_trigger
-
-
     #create the dashboard window
     window = Dashboard()
-
     #create the website server
     app = Website("Jinja templates/")
 
-
-    #used to exit the website and window loop, clean up and then quit the program
-    def cleanup():
-        global loop_exit_trigger
-        loop_exit_trigger = True
-
-    
-    #start the website
+    #start the website in the background
     await app.start_website("localhost", 8080)
 
-
-    #call cleanup when the tkinter window is closed
-    window.protocol("WM_DELETE_WINDOW", cleanup)
-
-    #update loop to let asyncio event loop run while also updating the tkinter window
-    while not loop_exit_trigger:
-        window.update()
-        await asyncio.sleep(WINDOW_UPDATE_DELAY)
+    #start the dashboard window's loop. 
+    #tk.Tk.mainloop is not used as it blocks the main thread, 
+    #blocking asyncio, blocking the website
+    await window.async_mainloop(WINDOW_UPDATE_DELAY)
 
     #before exiting the program, clean up the web server
     await app.destroy_server()
