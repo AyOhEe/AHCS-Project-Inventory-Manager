@@ -1,23 +1,11 @@
 import asyncio
-import aiohttp_jinja2
-import jinja2
-
-from datetime import datetime
-from aiohttp import web
 
 
 from dashboard import Dashboard
+from website import Website
 
 #time between tkinter window updates
 WINDOW_UPDATE_DELAY = 0.02
-
-
-async def hello(request):
-    context = {'datetime' : str(datetime.now())}
-    response = aiohttp_jinja2.render_template('hello.html',
-                                              request,
-                                              context)
-    return response
 
 
 loop_exit_trigger = False
@@ -28,10 +16,8 @@ async def main():
     #create the dashboard window
     window = Dashboard()
 
-    #configure the aiohttp application for the website front end with jinja for templates
-    app = web.Application()
-    aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader('Jinja templates/'))
-    app.add_routes([web.get('/', hello)])
+    #create the website server
+    app = Website("Jinja templates/")
 
 
     #used to exit the website and window loop, clean up and then quit the program
@@ -40,11 +26,8 @@ async def main():
         loop_exit_trigger = True
 
     
-    #create the aiohttp application runner used to run tkinter and aiohttp concurrently
-    runner = web.AppRunner(app)
-    await runner.setup()
-    site = web.TCPSite(runner, 'localhost', 8080)
-    await site.start() #the web server now runs in the background
+    #start the website
+    await app.start_website("localhost", 8080)
 
 
     #call cleanup when the tkinter window is closed
@@ -55,8 +38,11 @@ async def main():
         window.update()
         await asyncio.sleep(WINDOW_UPDATE_DELAY)
 
-    #before exiting the program, clean up the aiohttp server
-    await runner.cleanup()
+    #before exiting the program, clean up the web server
+    await app.destroy_server()
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        quit(0)
