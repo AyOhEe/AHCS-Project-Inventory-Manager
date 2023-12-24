@@ -8,12 +8,8 @@ from datetime import datetime
 from aiohttp import web
 
 
+from pinmanager import PinManager
 
-#placeholder class to be properly done later. accepts all PINs for now
-class PinManager:
-    @classmethod
-    def verify_pin(pin, requires_admin):
-        return True
 
 #this massive decorator means that for a new page to verify a PIN, one only need
 #use this decorator and it will handle the redirects for you if given an invalid PIN.
