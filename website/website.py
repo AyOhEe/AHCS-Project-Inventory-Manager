@@ -146,7 +146,7 @@ class Website(web.Application):
                                                 context)
         return response
     
-    @verifies_pin
+    @verifies_pin(requires_admin = True)
     async def p_listing_created(self, request):
         context = {'datetime' : str(datetime.now())}
         response = aiohttp_jinja2.render_template('index.html',
@@ -162,7 +162,7 @@ class Website(web.Application):
                                                 context)
         return response
     
-    @verifies_pin
+    @verifies_pin(requires_admin = True)
     async def p_listing_removed(self, request):
         context = {'datetime' : str(datetime.now())}
         response = aiohttp_jinja2.render_template('index.html',
@@ -178,7 +178,7 @@ class Website(web.Application):
                                                 context)
         return response
     
-    @verifies_pin
+    @verifies_pin(requires_admin = True)
     async def p_listing_updated(self, request):
         context = {'datetime' : str(datetime.now())}
         response = aiohttp_jinja2.render_template('index.html',
