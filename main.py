@@ -34,6 +34,7 @@ async def main():
     await app.destroy_server()
 
 if __name__ == "__main__":
+    #don't show an error to the console when ending the application at the command line
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
