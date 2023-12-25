@@ -106,6 +106,21 @@ class _PinManagerInstance:
 
         #the pin is okay if it exists and has sufficient authority for this action
         return valid and authority
+    
+    #adds a new employee record to the pin manager with the given pin.
+    #returns True on success, otherwise returns False
+    def add_new_employee(self, pin: str, employee: EmployeeRecord):
+        #generate the hash for their PIN
+        hash = HASH_FUNCTION(pin)
+
+        #ensure that someone does not already share this PIN
+        if hash in self.employee_records:
+            return False
+
+        #store the employee and their hash
+        self.employee_records[hash] = employee
+        self.employee_records[hash].PIN_hash = hash
+        return True
 
 
 
@@ -130,5 +145,26 @@ class PinManager:
 
     @classmethod
     @check_exists
-    def verify_pin(pin, requires_admin):
+    def verify_pin(pin, requires_admin=False):
         return PinManager.__instance.verify_pin(pin, requires_admin)
+    
+    @classmethod
+    @check_exists
+    def add_new_employee(pin: str, employee: EmployeeRecord):
+        return PinManager.__instance.add_new_employee(pin, employee)
+
+
+if __name__ == "__main__":
+    import os
+
+
+    #reset the employee data and restart the pin manager
+    os.remove("EmployeeData.json")
+    PinManager.__instance = _PinManagerInstance()
+
+    #add a new key and check that it exists
+    PinManager.add_new_employee("1234567", EmployeeRecord("", "John Doe", False))
+    if PinManager.verify_pin("1234567"):
+        print("Pin successfully added")
+    else:
+        print("Pin unsuccessfully added")
