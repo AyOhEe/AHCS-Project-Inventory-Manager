@@ -13,25 +13,29 @@ from pinmanager import PinManager
 
 #this massive decorator means that for a new page to verify a PIN, one only need
 #use this decorator and it will handle the redirects for you if given an invalid PIN.
-def verifies_pin(request_handler, needs_admin=False):
+def verifies_pin(requires_admin=False):
 
-    @wraps(request_handler)
-    async def wrapper(self, request, *args, **kwargs):
-        params = await request.post()
+    def decorator(request_handler):
+        @wraps(request_handler)
+        async def wrapper(self, request, *args, **kwargs):
+            params = await request.post()
 
-        if "PIN" in params:
-            pin = params["PIN"]
+            if "PIN" in params:
+                pin = params["PIN"]
 
-            if PinManager.verify_pin(pin, needs_admin):
-                return await request_handler(self, request, *args, **kwargs)
+                if PinManager.verify_pin(pin, requires_admin):
+                    return await request_handler(self, request, *args, **kwargs)
+                else:
+                    #TODO log authentication error
+                    raise web.HTTPFound('/auth_error?reason=invalidpin')
             else:
-                #TODO log authentication error
-                raise web.HTTPFound('/auth_error?reason=invalidpin')
-        else:
-            #TODO log authentication eror
-            raise web.HTTPFound('/auth_error?reason=nopin')
+                #TODO log authentication eror
+                raise web.HTTPFound('/auth_error?reason=nopin')
+            
+        return wrapper
 
-    return wrapper
+    #decorators which can take arguments need to return another decorator.
+    return decorator
 
 
 
@@ -114,7 +118,7 @@ class Website(web.Application):
                                                 context)
         return response
     
-    @verifies_pin
+    @verifies_pin()
     async def p_stock_removed(self, request):
         context = {'datetime' : str(datetime.now())}
         response = aiohttp_jinja2.render_template('index.html',
@@ -130,7 +134,7 @@ class Website(web.Application):
                                                 context)
         return response
     
-    @verifies_pin
+    @verifies_pin()
     async def p_stock_added(self, request):
         context = {'datetime' : str(datetime.now())}
         response = aiohttp_jinja2.render_template('index.html',
