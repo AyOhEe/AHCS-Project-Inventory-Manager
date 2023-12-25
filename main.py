@@ -3,6 +3,7 @@ import asyncio
 
 from dashboard import Dashboard
 from website import Website
+from pinmanager import PinManager
 
 #time between tkinter window updates
 WINDOW_UPDATE_DELAY = 0.1

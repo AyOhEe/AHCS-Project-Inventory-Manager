@@ -1,5 +1,6 @@
 import json
 import hashlib
+import atexit
 
 
 from functools import wraps
@@ -21,30 +22,6 @@ DEFAULT_EMPLOYEE_DATA_JSON = f"""{{
 """
 
 
-
-#class which all PIN requests and changes are directed to. hides an instance of the
-#real pin manager using the singleton design pattern
-class PinManager:
-    #the instance of the _PinManagerInstance class
-    __instance = None
-
-
-    #ensures that an instance of the pin manager exists before running the wrapped function
-    def check_exists(f):
-
-        @wraps(f)
-        def wrapper(self, *args, **kwargs):
-            if PinManager.__instance == None:
-                PinManager.__instance = _PinManagerInstance()
-
-            return f(*args, **kwargs)
-
-        return wrapper
-
-    @classmethod
-    @check_exists
-    def verify_pin(pin, requires_admin):
-        return PinManager.__instance.verify_pin(pin, requires_admin)
     
 @dataclass
 class EmployeeRecord:
@@ -61,6 +38,22 @@ class EmployeeRecord:
 class _PinManagerInstance:
     def __init__(self):
         self.employee_records = self.read_records()
+
+        atexit.register(self.on_exit)
+
+    #save the PIN hashes to disk when the program exits
+    def on_exit(self):
+        self.save_to_disk()
+    
+    #saves all employee data to disk
+    def save_to_disk(self):
+        data = { "employees" : []}
+
+        for hash, record in self.employee_records.items():
+            data["employees"].append(record.dict_serialise())
+
+        with open("EmployeeData.json", "w") as f:
+            json.dump(data, f, indent=4)
 
     #if the file exists, read the employee PIN hashes and records. otherwise returns empty list
     def read_records(self):
@@ -113,3 +106,29 @@ class _PinManagerInstance:
 
         #the pin is okay if it exists and has sufficient authority for this action
         return valid and authority
+
+
+
+#class which all PIN requests and changes are directed to. hides an instance of the
+#real pin manager using the singleton design pattern
+class PinManager:
+    #the instance of the _PinManagerInstance class
+    __instance = _PinManagerInstance()
+
+
+    #ensures that an instance of the pin manager exists before running the wrapped function
+    def check_exists(f):
+
+        @wraps(f)
+        def wrapper(self, *args, **kwargs):
+            if PinManager.__instance == None:
+                PinManager.__instance = _PinManagerInstance()
+
+            return f(*args, **kwargs)
+
+        return wrapper
+
+    @classmethod
+    @check_exists
+    def verify_pin(pin, requires_admin):
+        return PinManager.__instance.verify_pin(pin, requires_admin)
