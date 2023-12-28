@@ -1,6 +1,7 @@
 import json
 import hashlib
 import atexit
+import copy
 
 
 from functools import wraps
@@ -120,7 +121,41 @@ class _PinManagerInstance:
         #store the employee and their hash
         self.employee_records[hash] = employee
         self.employee_records[hash].PIN_hash = hash
-        return True
+        #return the new record for convenience. can be ignored if it's not useful
+        return self.employee_records[hash]
+    
+    #takes an employee hash and replaces their employee record with the supplied one
+    def update_employee(self, hash: str, new_record: EmployeeRecord):
+        #simply do the replacement, authorisation should be managed elsewhere
+        if hash in self.employee_records:
+            self.employee_records[hash] = new_record
+            #hash might not be supplied in the new record, so set it just in case
+            self.employee_records[hash].hash = hash 
+            #return the new record for convenience. can be ignored if it's not useful
+            return self.employee_records
+        
+        #employee wasn't there, return False to indicate failure
+        return False
+        
+    #removes an employee from the records
+    def remove_employee(self, hash: str):
+        if hash in self.employee_records:
+            #return the old record for convenience. can be ignored if it's not useful
+            return self.employee_records.pop(hash)
+        
+        #employee wasn't there, return False to indicate failure
+        return False
+    
+    #returns a copy dictionary (i.e. the user can't modify it) of the employee records
+    def get_employees(self):
+        return dict(self.employee_records)
+    
+    def get_employee(self, hash):
+        if hash in self.employee_records:
+            return copy.deepcopy(self.employee_records[hash])
+        
+        return False
+        
 
 
 
@@ -132,6 +167,9 @@ class PinManager:
 
 
     #ensures that an instance of the pin manager exists before running the wrapped function
+    #NOTE: this absorbs the reference of "self" given to functions. this class shouldn't ever
+    #      have instance methods anyway, so that isn't an issue, but keep this in mind if adding
+    #      functions to this class
     def check_exists(f):
 
         @wraps(f)
@@ -152,6 +190,26 @@ class PinManager:
     @check_exists
     def add_new_employee(pin: str, employee: EmployeeRecord):
         return PinManager.__instance.add_new_employee(pin, employee)
+    
+    @classmethod
+    @check_exists
+    def update_employee(hash: str, new_record: EmployeeRecord):
+        return PinManager.__instance.update_employee(hash, new_record)
+    
+    @classmethod
+    @check_exists
+    def remove_employee(hash: str):
+        return PinManager.__instance.remove_employee(hash)
+    
+    @classmethod
+    @check_exists
+    def get_employees():
+        return PinManager.__instance.get_employees()
+    
+    @classmethod
+    @check_exists
+    def get_employee(hash):
+        return PinManager.__instance.get_employee(hash)
 
 
 if __name__ == "__main__":
@@ -168,3 +226,37 @@ if __name__ == "__main__":
         print("Pin successfully added")
     else:
         print("Pin unsuccessfully added")
+        quit()
+
+
+    #get a record of all employee hashes and take the first one
+    hashes = [k for k in PinManager.get_employees().keys()]
+    hash = hashes[0]
+
+    #attempt to update it and verify that the change went through
+    record = EmployeeRecord("", "Jane Doe", True)
+    PinManager.update_employee(hash, record)
+
+    if (new_record := PinManager.get_employee(hash)):
+        if new_record == record:
+            print("Employee update success")
+        else:
+            print("Employee update failure")
+
+
+    #remove the employee then verify that it was removed
+    if not PinManager.remove_employee(hash):
+        print("Employee not in record (??? this shouldn't happen ???)")
+        quit()
+    
+    if PinManager.get_employee(hash):
+        print("Employee was found after deletion. Failure.")
+        quit()
+    else:
+        print("Employee successfully removed!")
+
+    #this enables the following ansi escape for console colours. don't ask me why
+    #we need to do this, it's just how it is AFAIK
+    os.system("") 
+    print("\n\n\t\t\033[0;32mFull basic test pass!\033[37m")
+

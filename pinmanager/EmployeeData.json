@@ -1,14 +1,3 @@
 {
-    "employees": [
-        {
-            "PIN_hash": "d40da9e902a33e5fbe7908fc10f9ce144b66b05c994f43ea488779b19a528bfc05f29e6b8f9947ad306fc4a31bf0f0bfd192f6c4d8578c9158142c433a517ebe",
-            "name": "Default Administrator PIN",
-            "has_admin": true
-        },
-        {
-            "PIN_hash": "e13efc991a9bf44bbb4da87cdbb725240184585ccaf270523170e008cf2a3b85f45f86c3da647f69780fb9e971caf5437b3d06d418355a68c9760c70a31d05c7",
-            "name": "John Doe",
-            "has_admin": false
-        }
-    ]
+    "employees": []
 }
