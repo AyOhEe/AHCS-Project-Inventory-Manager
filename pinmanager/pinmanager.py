@@ -2,6 +2,7 @@ import json
 import hashlib
 import atexit
 import copy
+import typing
 
 
 from functools import wraps
@@ -96,7 +97,7 @@ class _PinManagerInstance:
 
 
     #returns true if the hash of this pin exists in the employee records
-    def verify_pin(self, pin, requires_admin):
+    def verify_pin(self, pin: str, requires_admin: bool) -> bool:
         #hash the pin
         hash = HASH_FUNCTION(pin)
 
@@ -109,8 +110,8 @@ class _PinManagerInstance:
         return valid and authority
     
     #adds a new employee record to the pin manager with the given pin.
-    #returns True on success, otherwise returns False
-    def add_new_employee(self, pin: str, employee: EmployeeRecord):
+    #returns the new employee record on success, otherwise returns False
+    def add_new_employee(self, pin: str, employee: EmployeeRecord) -> bool | EmployeeRecord:
         #generate the hash for their PIN
         hash = HASH_FUNCTION(pin)
 
@@ -125,7 +126,8 @@ class _PinManagerInstance:
         return self.employee_records[hash]
     
     #takes an employee hash and replaces their employee record with the supplied one
-    def update_employee(self, hash: str, new_record: EmployeeRecord):
+    #returns False on failure and the new record on success
+    def update_employee(self, hash: str, new_record: EmployeeRecord) -> bool | EmployeeRecord:
         #simply do the replacement, authorisation should be managed elsewhere
         if hash in self.employee_records:
             self.employee_records[hash] = new_record
@@ -138,7 +140,8 @@ class _PinManagerInstance:
         return False
         
     #removes an employee from the records
-    def remove_employee(self, hash: str):
+    #returns false on failure, the old record on success
+    def remove_employee(self, hash: str) -> bool | EmployeeRecord:
         if hash in self.employee_records:
             #return the old record for convenience. can be ignored if it's not useful
             return self.employee_records.pop(hash)
@@ -147,10 +150,10 @@ class _PinManagerInstance:
         return False
     
     #returns a copy dictionary (i.e. the user can't modify it) of the employee records
-    def get_employees(self):
+    def get_employees(self) -> typing.Dict[str, EmployeeRecord]:
         return dict(self.employee_records)
     
-    def get_employee(self, hash):
+    def get_employee(self, hash: str) -> bool | EmployeeRecord:
         if hash in self.employee_records:
             return copy.deepcopy(self.employee_records[hash])
         
@@ -183,32 +186,32 @@ class PinManager:
 
     @classmethod
     @check_exists
-    def verify_pin(pin, requires_admin=False):
+    def verify_pin(pin, requires_admin: bool = False) -> bool:
         return PinManager.__instance.verify_pin(pin, requires_admin)
     
     @classmethod
     @check_exists
-    def add_new_employee(pin: str, employee: EmployeeRecord):
+    def add_new_employee(pin: str, employee: EmployeeRecord) -> bool | EmployeeRecord:
         return PinManager.__instance.add_new_employee(pin, employee)
     
     @classmethod
     @check_exists
-    def update_employee(hash: str, new_record: EmployeeRecord):
+    def update_employee(hash: str, new_record: EmployeeRecord) -> bool | EmployeeRecord:
         return PinManager.__instance.update_employee(hash, new_record)
     
     @classmethod
     @check_exists
-    def remove_employee(hash: str):
+    def remove_employee(hash: str) -> bool | EmployeeRecord:
         return PinManager.__instance.remove_employee(hash)
     
     @classmethod
     @check_exists
-    def get_employees():
+    def get_employees() -> typing.Dict[str, EmployeeRecord]:
         return PinManager.__instance.get_employees()
     
     @classmethod
     @check_exists
-    def get_employee(hash):
+    def get_employee(hash) -> EmployeeRecord:
         return PinManager.__instance.get_employee(hash)
 
 
