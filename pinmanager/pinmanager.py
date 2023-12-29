@@ -132,7 +132,7 @@ class _PinManagerInstance:
         if hash in self.employee_records:
             self.employee_records[hash] = new_record
             #hash might not be supplied in the new record, so set it just in case
-            self.employee_records[hash].hash = hash 
+            self.employee_records[hash].PIN_hash = hash 
             #return the new record for convenience. can be ignored if it's not useful
             return self.employee_records
         
