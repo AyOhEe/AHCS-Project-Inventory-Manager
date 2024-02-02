@@ -104,7 +104,10 @@ class _PinManagerInstance:
         #verify the pin exists
         valid = hash in self.employee_records
         #verify the pin has adequate authority
-        authority = (self.employee_records[hash].has_admin) or (not requires_admin)
+        if valid:
+            authority = (self.employee_records[hash].has_admin) or (not requires_admin)
+        else:
+            return False
 
         #the pin is okay if it exists and has sufficient authority for this action
         return valid and authority
@@ -176,7 +179,7 @@ class PinManager:
     def check_exists(f):
 
         @wraps(f)
-        def wrapper(self, *args, **kwargs):
+        def wrapper(*args, **kwargs):
             if PinManager.__instance == None:
                 PinManager.__instance = _PinManagerInstance()
 
@@ -184,32 +187,32 @@ class PinManager:
 
         return wrapper
 
-    @classmethod
+    @staticmethod
     @check_exists
     def verify_pin(pin, requires_admin: bool = False) -> bool:
         return PinManager.__instance.verify_pin(pin, requires_admin)
     
-    @classmethod
+    @staticmethod
     @check_exists
     def add_new_employee(pin: str, employee: EmployeeRecord) -> bool | EmployeeRecord:
         return PinManager.__instance.add_new_employee(pin, employee)
     
-    @classmethod
+    @staticmethod
     @check_exists
     def update_employee(hash: str, new_record: EmployeeRecord) -> bool | EmployeeRecord:
         return PinManager.__instance.update_employee(hash, new_record)
     
-    @classmethod
+    @staticmethod
     @check_exists
     def remove_employee(hash: str) -> bool | EmployeeRecord:
         return PinManager.__instance.remove_employee(hash)
     
-    @classmethod
+    @staticmethod
     @check_exists
     def get_employees() -> typing.Dict[str, EmployeeRecord]:
         return PinManager.__instance.get_employees()
     
-    @classmethod
+    @staticmethod
     @check_exists
     def get_employee(hash) -> EmployeeRecord:
         return PinManager.__instance.get_employee(hash)
