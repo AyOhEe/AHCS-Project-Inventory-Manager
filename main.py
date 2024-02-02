@@ -12,7 +12,7 @@ WINDOW_UPDATE_DELAY = 0.1
 #directory containing the website page templates
 TEMPLATES_PATH = "Jinja templates/"
 #address at which the website hosts itself
-HOST_ADDRESS = "localhost"
+HOST_ADDRESS = "0.0.0.0"
 #port which the website hosts itself
 PORT = 8080
 
