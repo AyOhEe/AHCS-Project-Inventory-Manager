@@ -1,0 +1,7 @@
+{
+    "name" : "Test item - tool",
+    "description" : "This is for testing.",
+    "category" : 4,
+    "manufacturer" : "Some company",
+    "quantity" : 1 
+}
