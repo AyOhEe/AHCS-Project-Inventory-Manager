@@ -3,6 +3,9 @@ import asyncio
 import tkinter as tk
 
 class Dashboard(tk.Tk):
+    def __init__(self, *args, debug=False, **kwargs):
+        super().__init__(*args, **kwargs)
+
     async def async_mainloop(self, update_delay=0.1):
         self.loop_exit_trigger = False
         self.protocol("WM_DELETE_WINDOW", self.stop_loop)

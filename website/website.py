@@ -41,11 +41,13 @@ def verifies_pin(requires_admin=False):
 
 
 class Website(web.Application):
-    def __init__(self, templates_path, *args, **kwargs):
+    def __init__(self, templates_path, *args, debug=False, **kwargs):
         super().__init__(*args, **kwargs)
+        self.debug_mode = debug
         
+        #TODO sub applications? - this class is massive
         aiohttp_jinja2.setup(self, loader=jinja2.FileSystemLoader(templates_path))
-        self.add_routes([
+        routes = [
             web.get('/', self.g_index),
 
 
@@ -78,11 +80,12 @@ class Website(web.Application):
 
             web.get('/data/listing_categories', self.g_listing_categories),
             web.get('/data/listing_manufacturers', self.g_listing_manufacturers),
+        ]
 
+        if self.debug_mode:
+            routes.append(web.get('/debug/view_listing_data', self.g_view_listing_data))
 
-            #TODO argparse debug flag
-            web.get('/debug/view_listing_data', self.g_view_listing_data),
-        ])
+        self.add_routes(routes)
     
     async def start_website(self, host_addr, port):
         #create the aiohttp application runner used to run tkinter and aiohttp concurrently
