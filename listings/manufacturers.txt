@@ -1,0 +1,8 @@
+Example company ltd.
+Siemens
+Hewlett Packard
+Intel
+AMD
+NVidia
+Apple
+Microsoft

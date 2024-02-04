@@ -73,6 +73,10 @@ class Website(web.Application):
 
             web.get('/auth_error', self.g_auth_error),
             web.get('/generic_error', self.g_generic_error),
+
+
+            web.get('/data/listing_categories', self.g_listing_categories),
+            web.get('/data/listing_manufacturers', self.g_listing_manufacturers),
         ])
     
     async def start_website(self, host_addr, port):
@@ -199,6 +203,21 @@ class Website(web.Application):
         return response
     
     async def g_generic_error(self, request):
+        context = {'datetime' : str(datetime.now())}
+        response = aiohttp_jinja2.render_template('index.html',
+                                                request,
+                                                context)
+        return response
+    
+
+    async def g_listing_categories(self, request):
+        context = {'datetime' : str(datetime.now())}
+        response = aiohttp_jinja2.render_template('index.html',
+                                                request,
+                                                context)
+        return response
+
+    async def g_listing_manufacturers(self, request):
         context = {'datetime' : str(datetime.now())}
         response = aiohttp_jinja2.render_template('index.html',
                                                 request,

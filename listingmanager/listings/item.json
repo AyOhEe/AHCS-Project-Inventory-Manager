@@ -2,6 +2,6 @@
     "name" : "Test item - tool",
     "description" : "This is for testing.",
     "category" : 4,
-    "manufacturer" : "Some company",
+    "manufacturer" : 2
     "quantity" : 1 
 }

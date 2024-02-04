@@ -7,7 +7,7 @@ import os
 from functools import wraps
 
 
-from listing import Listing
+from . import Listing
 
 
 class _ListingManagerInstance:
@@ -28,9 +28,6 @@ class _ListingManagerInstance:
 
         #attempt to parse each listing
         self.parse_listings(manifest, listings_manifest)
-        
-        for listing in self.listings:
-            print(listing)
 
     def parse_listings(self, manifest, manifest_path):
         self.listings = []
@@ -76,6 +73,7 @@ class ListingManager:
     @staticmethod
     def initialise(manifest_path = "listings/manifest.json"):
         Listing.parse_categories()
+        Listing.parse_manufacturers()
         ListingManager.__instance = _ListingManagerInstance(manifest_path)
 
 
