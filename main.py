@@ -4,7 +4,10 @@ import asyncio
 from dashboard import Dashboard
 from website import Website
 from pinmanager import PinManager
+from listingmanager import ListingManager
 
+
+#TODO argparse and config file
 #time between tkinter window updates
 WINDOW_UPDATE_DELAY = 0.1
 
@@ -18,6 +21,10 @@ PORT = 8080
 
 
 async def main():
+    #initialise the listing manager before its first use so it's ready beforehand
+    ListingManager.initialise()
+
+
     #create the dashboard window
     window = Dashboard()
     #create the website server

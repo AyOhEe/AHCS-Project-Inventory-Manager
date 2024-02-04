@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Listing data</title>
+    </head>
+    <body>
+        <h1>Listing data</h1>
+        <div>
+            <h2>Categories</h2>
+            <ul>
+                {% for index, category in categories.items() %}
+                <li>{{index}} : {{ category }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        
+        <div>
+            <h2>Manufacturers</h2>
+            <ul>
+                {% for index, manufacturer in manufacturers.items() %}
+                <li>{{index}} : {{ manufacturer }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </body>
+</html>

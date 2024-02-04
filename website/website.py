@@ -9,6 +9,7 @@ from aiohttp import web
 
 
 from pinmanager import PinManager
+from listingmanager import Listing, ListingManager
 
 
 #this massive decorator means that for a new page to verify a PIN, one only need
@@ -77,6 +78,10 @@ class Website(web.Application):
 
             web.get('/data/listing_categories', self.g_listing_categories),
             web.get('/data/listing_manufacturers', self.g_listing_manufacturers),
+
+
+            #TODO argparse debug flag
+            web.get('/debug/view_listing_data', self.g_view_listing_data),
         ])
     
     async def start_website(self, host_addr, port):
@@ -220,6 +225,17 @@ class Website(web.Application):
     async def g_listing_manufacturers(self, request):
         context = {'datetime' : str(datetime.now())}
         response = aiohttp_jinja2.render_template('index.html',
+                                                request,
+                                                context)
+        return response
+    
+
+    async def g_view_listing_data(self, request):
+        context = {
+            "categories" : Listing.categories,
+            "manufacturers" : Listing.manufacturers
+        }
+        response = aiohttp_jinja2.render_template('view_listing_data.html',
                                                 request,
                                                 context)
         return response
