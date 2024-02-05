@@ -7,6 +7,7 @@ from dashboard import Dashboard
 from website import Website
 from pinmanager import PinManager
 from listingmanager import ListingManager
+from configmanager import ConfigManager
 
 
 
@@ -33,18 +34,23 @@ async def main(args):
     await app.destroy_server()
 
 if __name__ == "__main__":
+    #get the config values which also have command line arguments
+    debug = ConfigManager.get_config_value("debug")[1]
+    jinja_path = ConfigManager.get_config_value("jinja templates path")[1]
+    hostname = ConfigManager.get_config_value("hostname")[1]
+    port = ConfigManager.get_config_value("port")[1]
+    refresh_rate = ConfigManager.get_config_value("dashboard refresh rate")[1]
 
     #parse command line arguments. any provided will take priority over the config values
-    #TODO replace config values
     parser = argparse.ArgumentParser(
                     prog='Inventory Manager',
                     description='Hosts a web interface and local dashboard for managing stock inventory.',
                     )
-    parser.add_argument("--debug", default=False, action='store_true') #debug flag
-    parser.add_argument("--templates-path", default="Jinja templates/")
-    parser.add_argument("--host", default="0.0.0.0")
-    parser.add_argument("--port", default=8080)
-    parser.add_argument("--refresh-rate", default=0.1)
+    parser.add_argument("--debug", default=debug, action='store_true') #debug flag
+    parser.add_argument("--templates-path", default=jinja_path)
+    parser.add_argument("--host", default=hostname)
+    parser.add_argument("--port", default=port)
+    parser.add_argument("--refresh-rate", default=refresh_rate)
     args = parser.parse_args()
 
     if args.debug:

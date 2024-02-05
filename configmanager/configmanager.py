@@ -58,7 +58,7 @@ class _Config:
             path = override_path
 
         with open(path, "w") as f:
-            json.dump(self.config_values, f)
+            json.dump(self.config_values, f, indent=4)
 
 class ConfigManager:
     __instance = None
