@@ -82,8 +82,12 @@ class Website(web.Application):
             web.get('/data/listing_manufacturers', self.g_listing_manufacturers),
         ]
 
+        debug_routes = [
+            web.get('/debug/listing_data', self.__g_listing_data),
+            web.get('/debug/all_listings', self.__g_all_listings),
+        ]
         if self.debug_mode:
-            routes.append(web.get('/debug/view_listing_data', self.g_view_listing_data))
+            routes += debug_routes
 
         self.add_routes(routes)
     
@@ -233,12 +237,21 @@ class Website(web.Application):
         return response
     
 
-    async def g_view_listing_data(self, request):
+    async def __g_listing_data(self, request):
         context = {
             "categories" : Listing.categories,
             "manufacturers" : Listing.manufacturers
         }
-        response = aiohttp_jinja2.render_template('view_listing_data.html',
+        response = aiohttp_jinja2.render_template('listing_data.html',
+                                                request,
+                                                context)
+        return response
+    
+    async def __g_all_listings(self, request):
+        context = {
+            "listings" : [str(l) for l in ListingManager.get_all_listings()]
+        }
+        response = aiohttp_jinja2.render_template('all_listings.html',
                                                 request,
                                                 context)
         return response

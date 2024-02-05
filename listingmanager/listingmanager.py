@@ -64,7 +64,11 @@ class _ListingManagerInstance:
         pass
 
 
-    #query listings?
+    def get_all_listings(self):
+        return self.listings
+
+
+    #TODO query listings?
 
 class ListingManager:
     __instance = None
@@ -115,6 +119,12 @@ class ListingManager:
     @check_exists
     def remove_stock(listing, quantity):
         return ListingManager.__instance.remove_stock(listing, quantity)
+    
+
+    @staticmethod
+    @check_exists
+    def get_all_listings():
+        return ListingManager.__instance.get_all_listings()
     
 if __name__ == "__main__":
     ListingManager.initialise()
