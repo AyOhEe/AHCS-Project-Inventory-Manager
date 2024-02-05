@@ -8,6 +8,7 @@ from functools import wraps
 
 
 from . import Listing
+from configmanager import ConfigManager
 
 
 class _ListingManagerInstance:
@@ -75,9 +76,15 @@ class ListingManager:
 
 
     @staticmethod
-    def initialise(manifest_path = "listings/manifest.json"):
-        Listing.parse_categories()
-        Listing.parse_manufacturers()
+    def initialise(manifest_path = None):
+        if manifest_path == None:
+            manifest_path = ConfigManager.get_config_value("listings manifest")[1]
+
+        category_file =  ConfigManager.get_config_value("listing categories file")[1]
+        manufacturer_file =  ConfigManager.get_config_value("listing manufacturers file")[1]
+
+        Listing.parse_categories(category_file)
+        Listing.parse_manufacturers(manufacturer_file)
         ListingManager.__instance = _ListingManagerInstance(manifest_path)
 
 

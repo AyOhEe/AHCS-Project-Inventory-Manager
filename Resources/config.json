@@ -1,0 +1,12 @@
+{
+    "debug" : true,
+    "hostname" : "0.0.0.0",
+    "port" : 8080,
+    "jinja templates path" : "Resources/Jinja templates/",
+    "dashboard refresh rate" : 0.1,
+
+    "employee data path" : "Resources/EmployeeData.json",
+    "listings manifest" : "Resources/listings/manifest.json",
+    "listing categories file" : "Resources/listings/categories.txt",
+    "listing manufacturers file" : "Resources/listings/manufacturers.txt"
+}

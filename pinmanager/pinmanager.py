@@ -9,6 +9,10 @@ from functools import wraps
 from dataclasses import dataclass
 
 
+from configmanager import ConfigManager
+
+
+#NOTE don't move this to a config file - this should all be hardcoded and NOT accessible to the user
 #having a constant reference to this means it is trivial to replace it in the future
 HASH_FUNCTION = lambda x: hashlib.sha512(x.encode('utf-8'), usedforsecurity=True).hexdigest()
 DEFAULT_ADMIN_PIN = "3685368"
@@ -39,6 +43,7 @@ class EmployeeRecord:
 #managed by PinManager
 class _PinManagerInstance:
     def __init__(self):
+        self.employee_data_file = ConfigManager.get_config_value("employee data path")[1]
         self.employee_records = self.read_records()
 
         atexit.register(self.on_exit)
@@ -54,18 +59,18 @@ class _PinManagerInstance:
         for hash, record in self.employee_records.items():
             data["employees"].append(record.dict_serialise())
 
-        with open("EmployeeData.json", "w") as f:
+        with open(self.employee_data_file, "w") as f:
             json.dump(data, f, indent=4)
 
     #if the file exists, read the employee PIN hashes and records. otherwise returns empty list
     def read_records(self):
         #attempt to open the file containing the employee data (if it exists)
         try:
-            f = open("EmployeeData.json", "r")
+            f = open(self.employee_data_file, "r")
 
         except OSError:
             #whoops, doesn't exist, just create it return an empty list for now
-            with open("EmployeeData.json", "w") as f:
+            with open(self.employee_data_file, "w") as f:
                 f.write(DEFAULT_EMPLOYEE_DATA_JSON)
             hash = HASH_FUNCTION(DEFAULT_ADMIN_PIN)
             return {hash : EmployeeRecord(hash, "Default Administrator PIN", True)}
@@ -169,7 +174,7 @@ class _PinManagerInstance:
 #real pin manager using the singleton design pattern
 class PinManager:
     #the instance of the _PinManagerInstance class
-    __instance = _PinManagerInstance()
+    __instance = None
 
 
     #ensures that an instance of the pin manager exists before running the wrapped function

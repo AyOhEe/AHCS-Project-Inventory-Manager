@@ -12,11 +12,6 @@ from configmanager import ConfigManager
 
 
 async def main(args):
-    #TODO don't really like this but what alternative?
-    #initialise the listing manager before its first use so it's ready beforehand
-    ListingManager.initialise()
-
-
     #create the dashboard window
     window = Dashboard(debug=args.debug)
     #create the website server
@@ -35,6 +30,7 @@ async def main(args):
 
 if __name__ == "__main__":
     #get the config values which also have command line arguments
+    ConfigManager.initialise("Resources/config.json")
     debug = ConfigManager.get_config_value("debug")[1]
     jinja_path = ConfigManager.get_config_value("jinja templates path")[1]
     hostname = ConfigManager.get_config_value("hostname")[1]
