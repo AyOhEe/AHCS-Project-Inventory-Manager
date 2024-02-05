@@ -1,6 +1,7 @@
 import asyncio
 import aiohttp_jinja2
 import jinja2
+import os
 
 
 from functools import wraps
@@ -10,6 +11,7 @@ from aiohttp import web
 
 from pinmanager import PinManager
 from listingmanager import Listing, ListingManager
+from configmanager import ConfigManager
 
 
 #this massive decorator means that for a new page to verify a PIN, one only need
@@ -89,6 +91,8 @@ class Website(web.Application):
         if self.debug_mode:
             routes += debug_routes
 
+        routes += self.process_static_resources()
+
         self.add_routes(routes)
     
     async def start_website(self, host_addr, port):
@@ -100,6 +104,25 @@ class Website(web.Application):
 
     async def destroy_server(self):
         await self.runner.cleanup()
+
+
+    def process_static_resources(self):
+        routes = []
+        directory = ConfigManager.get_config_value('static web directory')[1]
+        for subdir, dirs, files in os.walk(directory):
+            for file in files:
+                filepath = os.path.join(subdir, file)
+                webpath = "/static/" + filepath[len(directory):]
+                print(f"Website: Found static web file {filepath}. Serving at {webpath}")
+                routes.append(self.serve_static(filepath, webpath))
+
+        return routes
+    
+    def serve_static(self, filepath, webpath):
+        def g_static_resource(request):
+            return web.FileResponse(filepath)
+
+        return web.get(webpath, g_static_resource)
 
 
     #region Pages
@@ -160,8 +183,8 @@ class Website(web.Application):
     
 
     async def g_create_listing(self, request):
-        context = {'datetime' : str(datetime.now())}
-        response = aiohttp_jinja2.render_template('index.html',
+        context = { }
+        response = aiohttp_jinja2.render_template('create_listing.html',
                                                 request,
                                                 context)
         return response

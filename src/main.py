@@ -5,8 +5,6 @@ import sys
 
 from dashboard import Dashboard
 from website import Website
-from pinmanager import PinManager
-from listingmanager import ListingManager
 from configmanager import ConfigManager
 
 
