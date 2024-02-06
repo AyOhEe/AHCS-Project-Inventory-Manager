@@ -8,14 +8,22 @@
     <body>
         <h1>Create Listing</h1>
         <form method="post" action="/listing_created">
-            <label for="item_category">Choose a category:</label>
+            <label for="item_name">Item name:</label>
+            <input type="text" id="item_name" name="item_name" value="Unnamed item"><br>
+            
+            <label for="item_description">Item description:</label><br>
+            <textarea name="item_description" rows="10" cols="30">
+Write a brief description of the item here.
+            </textarea><br>
+
+            <label for="item_category">Item category:</label>
             <select id="item_category" name="item_category">
                 {% for key, value in categories.items() %}
                 <option value="{{key}}">{{value}}</option>
                 {% endfor %}
             </select><br>
 
-            <label for="item_category">Choose a manufacturer:</label>
+            <label for="item_category">Item manufacturer:</label>
             <select id="item_manufacturer" name="item_manufacturer">
                 {% for key, value in manufacturers.items() %}
                 <option value="{{key}}">{{value}}</option>
