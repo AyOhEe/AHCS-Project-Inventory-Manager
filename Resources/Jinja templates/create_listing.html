@@ -7,9 +7,25 @@
     </head>
     <body>
         <h1>Create Listing</h1>
-    </body>
+        <form method="post" action="/listing_created">
+            <label for="item_category">Choose a category:</label>
+            <select id="item_category" name="item_category">
+                {% for key, value in categories.items() %}
+                <option value="{{key}}">{{value}}</option>
+                {% endfor %}
+            </select><br>
 
-    <script src="/static/listing_categories.js"></script>
-    <script src="/static/listing_manufacturers.js"></script>
-    <script src="/static/create_listing.js"></script>
+            <label for="item_category">Choose a manufacturer:</label>
+            <select id="item_manufacturer" name="item_manufacturer">
+                {% for key, value in manufacturers.items() %}
+                <option value="{{key}}">{{value}}</option>
+                {% endfor %}
+            </select><br>
+
+            <label for="PIN">Employee PIN:</label>
+            <input type="password" id="PIN" name="PIN"><br>
+
+            <input type="submit" value="Submit">
+        </form>
+    </body>
 </html>

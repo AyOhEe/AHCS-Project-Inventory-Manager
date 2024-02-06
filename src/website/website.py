@@ -186,7 +186,10 @@ class Website(web.Application):
     
 
     async def g_create_listing(self, request):
-        context = { }
+        context = { 
+            "categories" : Listing.categories, 
+            "manufacturers" : Listing.manufacturers 
+        }
         response = aiohttp_jinja2.render_template('create_listing.html',
                                                 request,
                                                 context)
