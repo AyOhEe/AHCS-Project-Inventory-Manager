@@ -80,8 +80,8 @@ class Website(web.Application):
             web.get('/generic_error', self.g_generic_error),
 
 
-            web.get('/data/listing_categories', self.g_listing_categories),
-            web.get('/data/listing_manufacturers', self.g_listing_manufacturers),
+            web.get('/data/listing_categories.json', self.g_listing_categories),
+            web.get('/data/listing_manufacturers.json', self.g_listing_manufacturers),
         ]
 
         debug_routes = [
@@ -91,6 +91,9 @@ class Website(web.Application):
         if self.debug_mode:
             routes += debug_routes
 
+        #we can't serve static resources just by accepting a path to them - that would
+        #require sanitation, and it can't be trusted to be perfect. by checking for all
+        #the resources we should serve at initialisation, we take that risk away entirely.
         routes += self.process_static_resources()
 
         self.add_routes(routes)
@@ -246,18 +249,12 @@ class Website(web.Application):
     
 
     async def g_listing_categories(self, request):
-        context = {'datetime' : str(datetime.now())}
-        response = aiohttp_jinja2.render_template('index.html',
-                                                request,
-                                                context)
-        return response
+        #TODO fix when Listing gets encapsulation
+        return web.json_response(Listing.categories)
 
     async def g_listing_manufacturers(self, request):
-        context = {'datetime' : str(datetime.now())}
-        response = aiohttp_jinja2.render_template('index.html',
-                                                request,
-                                                context)
-        return response
+        #TODO fix when Listing gets encapsulation
+        return web.json_response(Listing.manufacturers)
     
 
     async def __g_listing_data(self, request):

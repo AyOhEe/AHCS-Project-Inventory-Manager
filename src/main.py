@@ -6,10 +6,14 @@ import sys
 from dashboard import Dashboard
 from website import Website
 from configmanager import ConfigManager
+from listingmanager import ListingManager
 
 
 
 async def main(args):
+    #pre-initialise the listing manager so it is ready as needed 
+    ListingManager.initialise()
+
     #create the dashboard window
     window = Dashboard(debug=args.debug)
     #create the website server
