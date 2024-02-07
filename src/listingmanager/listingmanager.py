@@ -32,11 +32,11 @@ class _ListingManagerInstance:
 
     def parse_listings(self, manifest, manifest_path):
         self.listings = []
-        directory = pathlib.Path(os.getcwd()).joinpath(pathlib.Path(manifest_path))
-        directory = pathlib.Path(os.path.join(*directory.parts[:-1]))
+        self.directory = pathlib.Path(os.getcwd()).joinpath(pathlib.Path(manifest_path))
+        self.directory = pathlib.Path(os.path.join(*self.directory.parts[:-1]))
         for file_name in manifest["listings"]:
             try:
-                with open(os.path.join(directory, file_name), "r") as f:
+                with open(os.path.join(self.directory, file_name), "r") as f:
                     listing, success = Listing.from_file(f)
                     if success:
                         self.listings.append(listing)
@@ -51,6 +51,33 @@ class _ListingManagerInstance:
                 traceback.print_exc()
         
 
+    def save_listings(self):
+        #prepare the listings manifest and save each listing as we go
+        listings_manifest = {"listings" : []}
+
+        for l in self.listings:
+            #store the filename so it can be retrieved later
+            name_hash = hash(l.name)
+            filename = f"{name_hash}.json"
+            listings_manifest["listings"].append(filename)
+
+            #open and save to each file
+            path = os.path.join(self.directory, filename)
+            try:
+                with open(path, "w") as f:
+                    json.dump(l.as_dict(), f)
+            except FileNotFoundError:
+                #TODO log error
+                print("Could not open listing file {path}")
+
+
+        try:
+            with open(ConfigManager.get_config_value("listings manifest")[1], "w") as f:
+                json.dump(listings_manifest, f)
+        except FileNotFoundError:
+            #TODO log error
+            print("Could not open listings manifest to save. This should not occur.")
+
     def create_listing(self, name, desc, category, manufacturer):
         #enforce uniqueness
         for l in self.listings:
@@ -58,11 +85,17 @@ class _ListingManagerInstance:
                 return False, f"Name must be unique. \"{name}\" was already listed."
 
         self.listings.append(Listing(name, desc, category, manufacturer, 0))
+        self.save_listings()
         return True, None
 
     def update_listing(self):
+        self.save_listings()
         pass
+
     def remove_listing(self):
+
+        #TODO this needs to delete a file and remove the listing, it does not
+        #     need to save listings
         pass
 
 

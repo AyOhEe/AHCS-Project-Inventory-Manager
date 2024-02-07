@@ -26,6 +26,15 @@ class Listing:
     def __str__(self) -> str:
         return f"<Listing: {self.quantity}*\"{self.manufacturer} :: {self.name}\" - {self.category}>"
 
+    def as_dict(self) -> dict:
+        return {
+            "name" : self.name,
+            "description" : self.description,
+            "category" : self.category,
+            "manufacturer" : self.manufacturer,
+            "quantity" : self.quantity
+        }
+
     @classmethod
     def parse_categories(cls, file="listings/categories.txt"):
         try:
