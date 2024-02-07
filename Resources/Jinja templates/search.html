@@ -13,6 +13,7 @@
 
             <label for="item_category">Item category:</label>
             <select id="item_category" name="item_category">
+                <option value="-1">Any Category</option>
                 {% for key, value in categories.items() %}
                 <option value="{{key}}">{{value}}</option>
                 {% endfor %}
@@ -20,6 +21,7 @@
 
             <label for="item_category">Item manufacturer:</label>
             <select id="item_manufacturer" name="item_manufacturer">
+                <option value="-1">Any Manufacturer</option>
                 {% for key, value in manufacturers.items() %}
                 <option value="{{key}}">{{value}}</option>
                 {% endfor %}

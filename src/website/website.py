@@ -156,6 +156,11 @@ class Website(web.Application):
             item_manufacturer = request.query["item_manufacturer"]
         except KeyError:
             raise web.HTTPBadRequest(reason="Search parameters not supplied")
+        
+        ListingManager.query_listings(item_name, item_category, item_manufacturer)
+        #TODO display search results
+        #TODO make dummy data
+
         context = dict()
         response = aiohttp_jinja2.render_template('search_results.html',
                                                 request,

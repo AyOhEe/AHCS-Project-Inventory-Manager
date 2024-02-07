@@ -109,7 +109,35 @@ class _ListingManagerInstance:
         return self.listings
 
 
-    #TODO query listings?
+    def query_listings(self, name_segment, item_category, item_manufacturer):
+        listings = list(self.listings)
+
+        #remove all listings that do not match the manufacturer (if it is a search parameter)
+        if item_manufacturer != -1:
+            listings = [l for l in listings if l.manufacturer == item_manufacturer]
+
+        #remove all listings that do not match the category (if it is a search parameter)
+        if item_category != -1:
+            listings = [l for l in listings if l.category == item_category]
+
+        #any listing that does not contain the name segment should be discarded
+        cleaned_segment = name_segment.strip()
+        if cleaned_segment != "":
+            listings = [l for l in listings if name_segment.lower() in l.name.lower()]
+
+        
+        #sort the remaining listings by name, alphabetically. (Insertion sort)
+        for index in range(1, len(listings)):
+            current_index = index
+            swapped_listing = listings[index]
+
+            while current_index > 0 and listings[current_index - 1].name > swapped_listing.name:
+                listings[current_index] = listings[current_index - 1]
+                current_index -= 1
+
+            listings[current_index] = swapped_listing 
+            
+        return listings
 
 class ListingManager:
     __instance = None
