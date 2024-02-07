@@ -51,8 +51,15 @@ class _ListingManagerInstance:
                 traceback.print_exc()
         
 
-    def create_listing(self):
-        pass
+    def create_listing(self, name, desc, category, manufacturer):
+        #enforce uniqueness
+        for l in self.listings:
+            if l.name == name:
+                return False, f"Name must be unique. \"{name}\" was already listed."
+
+        self.listings.append(Listing(name, desc, category, manufacturer, 0))
+        return True, None
+
     def update_listing(self):
         pass
     def remove_listing(self):
@@ -103,18 +110,18 @@ class ListingManager:
 
     @staticmethod
     @check_exists
-    def create_listing():
-        return ListingManager.__instance.create_listing()
+    def create_listing(name, desc, category, manufacturer):
+        return ListingManager.__instance.create_listing(name, desc, category, manufacturer)
     
     @staticmethod
     @check_exists
-    def update_listing():
-        return ListingManager.__instance.update_listing()
+    def update_listing(*args, **kwargs):
+        return ListingManager.__instance.update_listing(*args, **kwargs)
     
     @staticmethod
     @check_exists
-    def remove_listing():
-        return ListingManager.__instance.remove_listing()
+    def remove_listing(*args, **kwargs):
+        return ListingManager.__instance.remove_listing(*args, **kwargs)
 
 
     @staticmethod

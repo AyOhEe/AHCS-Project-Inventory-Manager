@@ -197,8 +197,36 @@ class Website(web.Application):
     
     @verifies_pin(requires_admin = True)
     async def p_listing_created(self, request):
-        context = {'datetime' : str(datetime.now())}
-        response = aiohttp_jinja2.render_template('index.html',
+        #extract the listing details from the request
+        print(await request.post())
+        request_json = await request.post()
+        try:
+            name = request_json["item_name"]
+            description = request_json["item_description"]
+            category = int(request_json["item_category"])
+            manufacturer = int(request_json["item_manufacturer"])
+
+        except KeyError:
+            #missing values. can't create the listing!
+            #TODO respond with proper error
+            raise web.HTTPBadRequest(reason="Incomplete request")
+        
+        except ValueError:
+            #non-integer category or manufacturer
+            #TODO respond with proper error
+            raise web.HTTPBadRequest(reason="Non-integer where integer expected")
+
+        success, reason = ListingManager.create_listing(name, description, category, manufacturer)
+
+        context = {
+            "success" : success,
+            "reason" : reason,
+            "item_name" : name, 
+            "item_description" : description, 
+            "item_category" : Listing.categories[category],
+            "item_manufacturer" : Listing.manufacturers[manufacturer]
+        }
+        response = aiohttp_jinja2.render_template('listing_created.html',
                                                 request,
                                                 context)
         return response

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Listing created</title>
+    </head>
+    <body>
+        {% if success %}
+        <h1>Item listing created!</h1>
+        <p>
+            {{item_name}}<br>
+            {{item_description}}<br>
+            {{item_category}}<br>
+            {{item_manufacturer}}<br>
+        </p>
+        {% else %}
+        <h1>Item listing could not be created</h1>
+        <p>
+            {{reason}}<br>
+        </p>
+        {% endif %}
+    </body>
+</html>

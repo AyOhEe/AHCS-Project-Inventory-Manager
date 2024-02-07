@@ -13,26 +13,15 @@ class Listing:
             self, 
             name: str = "New Stock Item", 
             description: str = "N/A", 
-            category: Optional[str] = None,
-            manufacturer: str = None,
+            category: int = 0,
+            manufacturer: int = 0,
             quantity: int = 0
             ):
         self.name = name
         self.description = description
         self.manufacturer = manufacturer
         self.quantity = quantity
-
-        #if no category is provided, use the default
-        if category != None:
-            self.category = category
-        else:
-            self.category = Listing.categories[0]
-
-        #if no manufacturer is provided, use the default
-        if manufacturer != None:
-            self.manufacturer = manufacturer
-        else:
-            self.manufacturer = Listing.manufacturers[0]
+        self.category = category
 
     def __str__(self) -> str:
         return f"<Listing: {self.quantity}*\"{self.manufacturer} :: {self.name}\" - {self.category}>"
