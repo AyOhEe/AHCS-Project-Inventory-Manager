@@ -139,15 +139,25 @@ class Website(web.Application):
 
     
     async def g_search(self, request):
-        context = {'datetime' : str(datetime.now())}
-        response = aiohttp_jinja2.render_template('index.html',
+        context = { 
+            "categories" : Listing.categories, 
+            "manufacturers" : Listing.manufacturers 
+        }
+        response = aiohttp_jinja2.render_template('search.html',
                                                 request,
                                                 context)
         return response
     
     async def g_search_results(self, request):
-        context = {'datetime' : str(datetime.now())}
-        response = aiohttp_jinja2.render_template('index.html',
+        #extract the search parameters from the request url
+        try:
+            item_name = request.query["item_name"]
+            item_category = request.query["item_category"]
+            item_manufacturer = request.query["item_manufacturer"]
+        except KeyError:
+            raise web.HTTPBadRequest(reason="Search parameters not supplied")
+        context = dict()
+        response = aiohttp_jinja2.render_template('search_results.html',
                                                 request,
                                                 context)
         return response

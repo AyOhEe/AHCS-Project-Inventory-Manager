@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Search listings</title>
+    </head>
+    <body>
+        <h1>Search listings</h1>
+        <form method="get" action="/search_results">
+            <label for="item_name">Item name:</label>
+            <input type="text" id="item_name" name="item_name" value=""><br>
+
+            <label for="item_category">Item category:</label>
+            <select id="item_category" name="item_category">
+                {% for key, value in categories.items() %}
+                <option value="{{key}}">{{value}}</option>
+                {% endfor %}
+            </select><br>
+
+            <label for="item_category">Item manufacturer:</label>
+            <select id="item_manufacturer" name="item_manufacturer">
+                {% for key, value in manufacturers.items() %}
+                <option value="{{key}}">{{value}}</option>
+                {% endfor %}
+            </select><br>
+            
+            <input type="submit" value="Submit">
+        </form>
+    </body>
+</html>
