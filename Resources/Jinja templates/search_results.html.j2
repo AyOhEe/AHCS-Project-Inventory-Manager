@@ -7,5 +7,21 @@
     </head>
     <body>
         <h1>Search results</h1>
+        <p>
+            Search Parameters: "{{param_item_name}}", {{param_item_category}}, {{param_item_manufacturer}}
+        </p>
+        <ol>
+            {% for listing in results %}
+            <li>
+                {{listing["name"]}}, {{categories[listing["category"]]}}, {{manufacturers[listing["manufacturer"]]}}
+                <p>{{listing["description"]}}</p>
+                <button onclick="location.href='/remove_listing?name={{listing["name"]}}'">Remove listing</button>
+                <button onclick="location.href='/update_listing?name={{listing["name"]}}'">Update listing</button>
+                Stock: {{listing["quantity"]}}
+                <button onclick="location.href='/add_stock?name={{listing["name"]}}'">+</button>
+                <button onclick="location.href='/remove_stock?name={{listing["name"]}}'">-</button>
+            </li>
+            {% endfor %}
+        </ol>
     </body>
 </html>

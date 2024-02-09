@@ -109,7 +109,7 @@ class _ListingManagerInstance:
         return self.listings
 
 
-    def query_listings(self, name_segment, item_category, item_manufacturer):
+    def query_listings(self, name_segment: str, item_category: int, item_manufacturer: int):
         listings = list(self.listings)
 
         #remove all listings that do not match the manufacturer (if it is a search parameter)
@@ -200,6 +200,11 @@ class ListingManager:
     @check_exists
     def get_all_listings():
         return ListingManager.__instance.get_all_listings()
+    
+    @staticmethod
+    @check_exists
+    def query_listings(name_segment, item_category, item_manufacturer):
+        return ListingManager.__instance.query_listings(name_segment, item_category, item_manufacturer)
     
 if __name__ == "__main__":
     ListingManager.initialise()
