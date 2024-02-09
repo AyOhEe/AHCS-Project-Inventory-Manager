@@ -132,7 +132,7 @@ class Website(web.Application):
     
     async def g_index(self, request):
         context = {'datetime' : str(datetime.now())}
-        response = aiohttp_jinja2.render_template('index.html',
+        response = aiohttp_jinja2.render_template('index.html.j2',
                                                 request,
                                                 context)
         return response
@@ -143,7 +143,7 @@ class Website(web.Application):
             "categories" : Listing.categories, 
             "manufacturers" : Listing.manufacturers 
         }
-        response = aiohttp_jinja2.render_template('search.html',
+        response = aiohttp_jinja2.render_template('search.html.j2',
                                                 request,
                                                 context)
         return response
@@ -172,7 +172,7 @@ class Website(web.Application):
             "manufacturers" : Listing.manufacturers,
             "results" : [l.as_dict() for l in results] 
         }
-        response = aiohttp_jinja2.render_template('search_results.html',
+        response = aiohttp_jinja2.render_template('search_results.html.j2',
                                                 request,
                                                 context)
         return response
@@ -180,7 +180,7 @@ class Website(web.Application):
 
     async def g_remove_stock(self, request):
         context = {'datetime' : str(datetime.now())}
-        response = aiohttp_jinja2.render_template('index.html',
+        response = aiohttp_jinja2.render_template('index.html.j2',
                                                 request,
                                                 context)
         return response
@@ -188,7 +188,7 @@ class Website(web.Application):
     @verifies_pin()
     async def p_stock_removed(self, request):
         context = {'datetime' : str(datetime.now())}
-        response = aiohttp_jinja2.render_template('index.html',
+        response = aiohttp_jinja2.render_template('index.html.j2',
                                                 request,
                                                 context)
         return response
@@ -196,7 +196,7 @@ class Website(web.Application):
 
     async def g_add_stock(self, request):
         context = {'datetime' : str(datetime.now())}
-        response = aiohttp_jinja2.render_template('index.html',
+        response = aiohttp_jinja2.render_template('index.html.j2',
                                                 request,
                                                 context)
         return response
@@ -204,7 +204,7 @@ class Website(web.Application):
     @verifies_pin()
     async def p_stock_added(self, request):
         context = {'datetime' : str(datetime.now())}
-        response = aiohttp_jinja2.render_template('index.html',
+        response = aiohttp_jinja2.render_template('index.html.j2',
                                                 request,
                                                 context)
         return response
@@ -215,7 +215,7 @@ class Website(web.Application):
             "categories" : Listing.categories, 
             "manufacturers" : Listing.manufacturers 
         }
-        response = aiohttp_jinja2.render_template('create_listing.html',
+        response = aiohttp_jinja2.render_template('create_listing.html.j2',
                                                 request,
                                                 context)
         return response
@@ -251,7 +251,7 @@ class Website(web.Application):
             "item_category" : Listing.categories[category],
             "item_manufacturer" : Listing.manufacturers[manufacturer]
         }
-        response = aiohttp_jinja2.render_template('listing_created.html',
+        response = aiohttp_jinja2.render_template('listing_created.html.j2',
                                                 request,
                                                 context)
         return response
@@ -259,7 +259,7 @@ class Website(web.Application):
 
     async def g_remove_listing(self, request):
         context = {'datetime' : str(datetime.now())}
-        response = aiohttp_jinja2.render_template('index.html',
+        response = aiohttp_jinja2.render_template('index.html.j2',
                                                 request,
                                                 context)
         return response
@@ -267,7 +267,7 @@ class Website(web.Application):
     @verifies_pin(requires_admin = True)
     async def p_listing_removed(self, request):
         context = {'datetime' : str(datetime.now())}
-        response = aiohttp_jinja2.render_template('index.html',
+        response = aiohttp_jinja2.render_template('index.html.j2',
                                                 request,
                                                 context)
         return response
@@ -275,7 +275,7 @@ class Website(web.Application):
 
     async def g_update_listing(self, request):
         context = {'datetime' : str(datetime.now())}
-        response = aiohttp_jinja2.render_template('index.html',
+        response = aiohttp_jinja2.render_template('index.html.j2',
                                                 request,
                                                 context)
         return response
@@ -283,7 +283,7 @@ class Website(web.Application):
     @verifies_pin(requires_admin = True)
     async def p_listing_updated(self, request):
         context = {'datetime' : str(datetime.now())}
-        response = aiohttp_jinja2.render_template('index.html',
+        response = aiohttp_jinja2.render_template('index.html.j2',
                                                 request,
                                                 context)
         return response
@@ -291,14 +291,14 @@ class Website(web.Application):
 
     async def g_auth_error(self, request):
         context = {'datetime' : str(datetime.now())}
-        response = aiohttp_jinja2.render_template('index.html',
+        response = aiohttp_jinja2.render_template('index.html.j2',
                                                 request,
                                                 context)
         return response
     
     async def g_generic_error(self, request):
         context = {'datetime' : str(datetime.now())}
-        response = aiohttp_jinja2.render_template('index.html',
+        response = aiohttp_jinja2.render_template('index.html.j2',
                                                 request,
                                                 context)
         return response
@@ -318,7 +318,7 @@ class Website(web.Application):
             "categories" : Listing.categories,
             "manufacturers" : Listing.manufacturers
         }
-        response = aiohttp_jinja2.render_template('listing_data.html',
+        response = aiohttp_jinja2.render_template('listing_data.html.j2',
                                                 request,
                                                 context)
         return response
@@ -327,7 +327,7 @@ class Website(web.Application):
         context = {
             "listings" : [str(l) for l in ListingManager.get_all_listings()]
         }
-        response = aiohttp_jinja2.render_template('all_listings.html',
+        response = aiohttp_jinja2.render_template('all_listings.html.j2',
                                                 request,
                                                 context)
         return response
