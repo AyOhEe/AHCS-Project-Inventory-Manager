@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Remove Stock</title>
+    </head>
+    <body>
+        <h1>Remove Stock: {{item_name}}</h1>
+        <form method="post" action="/stock_removed">
+            <input type = "hidden" name = "item_name" value = "{{item_name}}" />
+            
+            <label for="quantity">Quantity: </label>
+            <input type="number" id="quantity" name="quantity"><br>
+
+            <label for="PIN">PIN: </label>
+            <input type="password" id="PIN" name="PIN"><br>
+
+            <input type="submit" value="Submit">
+        </form>
+    </body>
+</html>

@@ -15,11 +15,11 @@
             <li>
                 {{listing["name"]}}, {{categories[listing["category"]]}}, {{manufacturers[listing["manufacturer"]]}}
                 <p>{{listing["description"]}}</p>
-                <button onclick="location.href='/remove_listing?name={{listing["name"]}}'">Remove listing</button>
-                <button onclick="location.href='/update_listing?name={{listing["name"]}}'">Update listing</button>
+                <button onclick="location.href='/remove_listing?item_name={{listing["name"]}}'">Remove listing</button>
+                <button onclick="location.href='/update_listing?item_name={{listing["name"]}}'">Update listing</button>
                 Stock: {{listing["quantity"]}}
-                <button onclick="location.href='/add_stock?name={{listing["name"]}}'">+</button>
-                <button onclick="location.href='/remove_stock?name={{listing["name"]}}'">-</button>
+                <button onclick="location.href='/add_stock?item_name={{listing["name"]}}'">+</button>
+                <button onclick="location.href='/remove_stock?item_name={{listing["name"]}}'">-</button>
             </li>
             {% endfor %}
         </ol>
