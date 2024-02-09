@@ -55,7 +55,7 @@ class Website(web.Application):
 
 
             web.get('/search', self.g_search),
-            web.get('/search_results', self.g_search_results),
+            web.get('/search_results', self.g_search_results), #TODO should this be POST? clients shouldn't pre-fetch
 
             web.get('/remove_stock', self.g_remove_stock),
             web.post('/stock_removed', self.p_stock_removed),
@@ -179,32 +179,94 @@ class Website(web.Application):
 
 
     async def g_remove_stock(self, request):
-        context = {'datetime' : str(datetime.now())}
-        response = aiohttp_jinja2.render_template('index.html.j2',
+        #extract the name 
+        try:
+            name = request.rel_url.query["item_name"]
+
+        except KeyError:
+            #missing values. can't create the listing!
+            #TODO respond with proper error
+            raise web.HTTPBadRequest(reason="Incomplete request")
+        
+        context = {"item_name" : name}
+        response = aiohttp_jinja2.render_template('remove_stock.html.j2',
                                                 request,
                                                 context)
         return response
     
     @verifies_pin()
     async def p_stock_removed(self, request):
-        context = {'datetime' : str(datetime.now())}
-        response = aiohttp_jinja2.render_template('index.html.j2',
+        #extract the name and change in quantity
+        params = await request.post()
+        try:
+            name = params["item_name"]
+            quantity = int(params["quantity"])
+
+        except KeyError:
+            #missing values. can't create the listing!
+            #TODO respond with proper error
+            raise web.HTTPBadRequest(reason="Incomplete request")
+        
+        except ValueError:
+            #non-integer category or manufacturer
+            #TODO respond with proper error
+            raise web.HTTPBadRequest(reason="Non-integer where integer expected")
+        
+        index = ListingManager.get_listing_index(name)
+        if index == -1:
+            raise web.HTTPBadRequest(reason="Listing does not exist")
+        if not ListingManager.remove_stock(index, quantity):
+            raise web.HTTPBadRequest(reason="Insufficient stock")
+
+        context = dict()
+        response = aiohttp_jinja2.render_template('stock_removed.html.j2',
                                                 request,
                                                 context)
         return response
     
 
     async def g_add_stock(self, request):
-        context = {'datetime' : str(datetime.now())}
-        response = aiohttp_jinja2.render_template('index.html.j2',
+        #extract the name 
+        try:
+            name = request.rel_url.query["item_name"]
+
+        except KeyError:
+            #missing values. can't create the listing!
+            #TODO respond with proper error
+            raise web.HTTPBadRequest(reason="Incomplete request")
+        
+        context = {"item_name" : name}
+        response = aiohttp_jinja2.render_template('add_stock.html.j2',
                                                 request,
                                                 context)
         return response
     
     @verifies_pin()
     async def p_stock_added(self, request):
-        context = {'datetime' : str(datetime.now())}
-        response = aiohttp_jinja2.render_template('index.html.j2',
+        #extract the name and change in quantity
+        request_json = await request.post()
+        try:
+            name = request_json["item_name"]
+            quantity = int(request_json["quantity"])
+
+        except KeyError:
+            #missing values. can't create the listing!
+            #TODO respond with proper error
+            raise web.HTTPBadRequest(reason="Incomplete request")
+        
+        except ValueError:
+            #non-integer category or manufacturer
+            #TODO respond with proper error
+            raise web.HTTPBadRequest(reason="Non-integer where integer expected")
+        
+        index = ListingManager.get_listing_index(name)
+        if index == -1:
+            raise web.HTTPBadRequest(reason="Listing does not exist")
+        if not ListingManager.add_stock(index, quantity):
+            raise web.HTTPBadRequest(reason="Insufficient stock")
+
+        context = dict()
+        response = aiohttp_jinja2.render_template('stock_added.html.j2',
                                                 request,
                                                 context)
         return response
@@ -223,7 +285,6 @@ class Website(web.Application):
     @verifies_pin(requires_admin = True)
     async def p_listing_created(self, request):
         #extract the listing details from the request
-        print(await request.post())
         request_json = await request.post()
         try:
             name = request_json["item_name"]

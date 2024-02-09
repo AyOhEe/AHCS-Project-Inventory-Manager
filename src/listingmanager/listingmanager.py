@@ -80,9 +80,8 @@ class _ListingManagerInstance:
 
     def create_listing(self, name, desc, category, manufacturer):
         #enforce uniqueness
-        for l in self.listings:
-            if l.name == name:
-                return False, f"Name must be unique. \"{name}\" was already listed."
+        if self.get_listing_index(name) != -1:
+            return False, f"Name must be unique. \"{name}\" was already listed."
 
         self.listings.append(Listing(name, desc, category, manufacturer, 0))
         self.save_listings()
@@ -98,11 +97,24 @@ class _ListingManagerInstance:
         #     need to save listings
         pass
 
+    def get_listing_index(self, name):
+        for i, l in enumerate(self.listings):
+            if l.name == name:
+                return i
+            
+        return -1
 
-    def add_stock(self, listing, quantity):
-        pass
-    def remove_stock(self, listing, quantity):
-        pass
+
+    def add_stock(self, listing_index, quantity):
+        if self.listings[listing_index].quantity + quantity < 0:
+            return False
+        else:
+            self.listings[listing_index].quantity += quantity
+            self.save_listings()
+            return True
+
+    def remove_stock(self, listing_index, quantity):
+        return self.add_stock(listing_index, -quantity)
 
 
     def get_all_listings(self):
@@ -183,7 +195,11 @@ class ListingManager:
     @check_exists
     def remove_listing(*args, **kwargs):
         return ListingManager.__instance.remove_listing(*args, **kwargs)
-
+    
+    @staticmethod
+    @check_exists
+    def get_listing_index(name):
+        return ListingManager.__instance.get_listing_index(name)
 
     @staticmethod
     @check_exists
