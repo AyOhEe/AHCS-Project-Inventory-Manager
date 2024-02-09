@@ -7,5 +7,16 @@
     </head>
     <body>
         <h1>Search results</h1>
+        <p>
+            Search Parameters: "{{param_item_name}}", {{param_item_category}}, {{param_item_manufacturer}}
+        </p>
+        <ol>
+            {% for listing in results %}
+            <li>
+                {{listing["quantity"]}} x {{listing["name"]}}, {{categories[listing["category"]]}}, {{manufacturers[listing["manufacturer"]]}}
+                <p>{{listing["description"]}}</p>
+            </li>
+            {% endfor %}
+        </ol>
     </body>
 </html>

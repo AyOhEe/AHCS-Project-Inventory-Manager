@@ -152,16 +152,26 @@ class Website(web.Application):
         #extract the search parameters from the request url
         try:
             item_name = request.query["item_name"]
-            item_category = request.query["item_category"]
-            item_manufacturer = request.query["item_manufacturer"]
+            item_category = int(request.query["item_category"])
+            item_manufacturer = int(request.query["item_manufacturer"])
         except KeyError:
             raise web.HTTPBadRequest(reason="Search parameters not supplied")
+        except ValueError:
+            raise web.HTTPBadRequest(reason="Non-integer value passed where integer required    ")
         
-        ListingManager.query_listings(item_name, item_category, item_manufacturer)
-        #TODO display search results
-        #TODO make dummy data
+        results = ListingManager.query_listings(item_name, item_category, item_manufacturer)
 
-        context = dict()
+
+        category_name = Listing.categories[item_category] if item_category != -1 else "Any Category"
+        manufacturer_name = Listing.manufacturers[item_manufacturer] if item_manufacturer != -1 else "Any Manufacturer"
+        context = { 
+            "param_item_name" : item_name, 
+            "param_item_category" : category_name,
+            "param_item_manufacturer" : manufacturer_name,
+            "categories" : Listing.categories, 
+            "manufacturers" : Listing.manufacturers,
+            "results" : [l.as_dict() for l in results] 
+        }
         response = aiohttp_jinja2.render_template('search_results.html',
                                                 request,
                                                 context)
