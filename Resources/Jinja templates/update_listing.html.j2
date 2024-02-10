@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Update Listing</title>
+    </head>
+    <body>
+        <h1>Update Listing</h1>
+        <form method="post" action="/listing_updated">
+            <input type="hidden" id="item_old_name" name="item_old_name" value="{{item_name}}"><br>
+
+            <label for="item_new_name">Item name:</label>
+            <input type="text" id="item_new_name" name="item_new_name" value="{{item_name}}"><br>
+            
+            <label for="item_new_desc">Item description:</label><br>
+            <textarea name="item_new_desc" rows="10" cols="30">
+{{item_desc}}
+            </textarea><br>
+
+            <label for="item_new_category">Item category:</label>
+            <select id="item_new_category" name="item_new_category" default="">
+                {% for key, value in categories.items() %}
+                {% if key == item_category %}
+                    <option selected value="{{key}}">{{value}}</option>
+                {% else %}
+                    <option value="{{key}}">{{value}}</option>
+                {% endif %}
+                {% endfor %}
+            </select><br>
+
+            <label for="item_new_manufacturer">Item manufacturer:</label>
+            <select id="item_new_manufacturer" name="item_new_manufacturer">
+                {% for key, value in manufacturers.items() %}
+                {% if key == item_manufacturer %}
+                    <option selected value="{{key}}">{{value}}</option>
+                {% else %}
+                    <option value="{{key}}">{{value}}</option>
+                {% endif %}
+                {% endfor %}
+            </select><br>
+
+            <label for="PIN">Employee PIN:</label>
+            <input type="password" id="PIN" name="PIN"><br>
+
+            <input type="submit" value="Submit">
+        </form>
+    </body>
+</html>

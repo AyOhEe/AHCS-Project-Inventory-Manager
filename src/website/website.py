@@ -360,16 +360,61 @@ class Website(web.Application):
     
 
     async def g_update_listing(self, request):
-        context = {'datetime' : str(datetime.now())}
-        response = aiohttp_jinja2.render_template('index.html.j2',
+        #extract the name 
+        try:
+            name = request.rel_url.query["item_name"]
+
+        except KeyError:
+            #missing values. can't create the listing!
+            #TODO respond with proper error
+            raise web.HTTPBadRequest(reason="Incomplete request")
+        
+        index = ListingManager.get_listing_index(name)
+        if index == -1:
+            raise web.HTTPBadRequest(reason="Listing does not exist")
+        listing = ListingManager.get_listing(index)
+        
+        context = {
+            "item_name" : name,
+            "item_desc" : listing.description,
+            "item_category" : listing.category,
+            "item_manufacturer" : listing.manufacturer,
+            "categories" : Listing.categories,
+            "manufacturers" : Listing.manufacturers
+        }
+        response = aiohttp_jinja2.render_template('update_listing.html.j2',
                                                 request,
                                                 context)
         return response
     
     @verifies_pin(requires_admin = True)
     async def p_listing_updated(self, request):
-        context = {'datetime' : str(datetime.now())}
-        response = aiohttp_jinja2.render_template('index.html.j2',
+        #extract the name and change in quantity
+        params = await request.post()
+        try:
+            name = params["item_old_name"]
+            new_name = params["item_new_name"]
+            new_description = params["item_new_desc"]
+            new_category = int(params["item_new_category"])
+            new_manufacturer = int(params["item_new_manufacturer"])
+
+        except KeyError:
+            #missing values. can't create the listing!
+            #TODO respond with proper error
+            raise web.HTTPBadRequest(reason="Incomplete request")
+        
+        except ValueError:
+            #non-integer category or manufacturer
+            #TODO respond with proper error
+            raise web.HTTPBadRequest(reason="Non-integer where integer expected")
+        
+        index = ListingManager.get_listing_index(name)
+        if index == -1:
+            raise web.HTTPBadRequest(reason="Listing does not exist")
+        ListingManager.update_listing(index, new_name, new_description, new_category, new_manufacturer)
+        
+        context = dict()
+        response = aiohttp_jinja2.render_template('listing_updated.html.j2',
                                                 request,
                                                 context)
         return response

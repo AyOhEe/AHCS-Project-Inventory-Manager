@@ -102,9 +102,13 @@ class _ListingManagerInstance:
         self.save_listings()
         return True, None
 
-    def update_listing(self):
+    def update_listing(self, index, new_name, new_description, new_category, new_manufacturer):
+        self.listings[index].name = new_name
+        self.listings[index].description = new_description
+        self.listings[index].category = new_category
+        self.listings[index].manufacturer = new_manufacturer
+
         self.save_listings()
-        pass
 
     def remove_listing(self, listing_index):
         l = self.listings.pop(listing_index)
@@ -136,6 +140,9 @@ class _ListingManagerInstance:
 
     def get_all_listings(self):
         return self.listings
+    
+    def get_listing(self, index):
+        return self.listings[index]
 
 
     def query_listings(self, name_segment: str, item_category: int, item_manufacturer: int):
@@ -205,8 +212,8 @@ class ListingManager:
     
     @staticmethod
     @check_exists
-    def update_listing(*args, **kwargs):
-        return ListingManager.__instance.update_listing(*args, **kwargs)
+    def update_listing(index, new_name, new_description, new_category, new_manufacturer):
+        return ListingManager.__instance.update_listing(index, new_name, new_description, new_category, new_manufacturer)
     
     @staticmethod
     @check_exists
@@ -233,6 +240,11 @@ class ListingManager:
     @check_exists
     def get_all_listings():
         return ListingManager.__instance.get_all_listings()
+    
+    @staticmethod
+    @check_exists
+    def get_listing(index):
+        return ListingManager.__instance.get_listing(index)
     
     @staticmethod
     @check_exists
