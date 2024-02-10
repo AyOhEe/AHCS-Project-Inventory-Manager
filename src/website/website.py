@@ -319,16 +319,41 @@ class Website(web.Application):
     
 
     async def g_remove_listing(self, request):
-        context = {'datetime' : str(datetime.now())}
-        response = aiohttp_jinja2.render_template('index.html.j2',
+        #extract the name 
+        try:
+            name = request.rel_url.query["item_name"]
+
+        except KeyError:
+            #missing values. can't create the listing!
+            #TODO respond with proper error
+            raise web.HTTPBadRequest(reason="Incomplete request")
+        
+        #TODO this REALLY needs a confirmation prompt.
+        context = {"item_name" : name}
+        response = aiohttp_jinja2.render_template('remove_listing.html.j2',
                                                 request,
                                                 context)
         return response
     
     @verifies_pin(requires_admin = True)
     async def p_listing_removed(self, request):
-        context = {'datetime' : str(datetime.now())}
-        response = aiohttp_jinja2.render_template('index.html.j2',
+        #extract the name and change in quantity
+        params = await request.post()
+        try:
+            name = params["item_name"]
+
+        except KeyError:
+            #missing values. can't create the listing!
+            #TODO respond with proper error
+            raise web.HTTPBadRequest(reason="Incomplete request")
+        
+        index = ListingManager.get_listing_index(name)
+        if index == -1:
+            raise web.HTTPBadRequest(reason="Listing does not exist")
+        ListingManager.remove_listing(index)
+        
+        context = dict()
+        response = aiohttp_jinja2.render_template('listing_removed.html.j2',
                                                 request,
                                                 context)
         return response

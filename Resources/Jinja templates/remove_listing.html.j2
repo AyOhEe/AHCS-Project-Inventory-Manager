@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Remove Listing</title>
+    </head>
+    <body>
+        <h1>Remove Listing</h1>
+        <form method="post" action="/listing_removed">
+            <input type = "hidden" name = "item_name" value = "{{item_name}}" />
+
+            <label for="PIN">PIN: </label>
+            <input type="password" id="PIN" name="PIN"><br>
+
+            <input type="submit" value="Submit">
+        </form>
+    </body>
+</html>
