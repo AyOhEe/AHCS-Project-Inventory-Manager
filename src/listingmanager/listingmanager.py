@@ -1,6 +1,7 @@
 import json
 import traceback
 import pathlib
+import hashlib
 import os
 
 
@@ -30,6 +31,10 @@ class _ListingManagerInstance:
         #attempt to parse each listing
         self.parse_listings(manifest, listings_manifest)
 
+    @staticmethod
+    def hash(data):
+        return hashlib.md5(data.encode("utf-8")).hexdigest()
+
     def parse_listings(self, manifest, manifest_path):
         self.listings = []
         self.directory = pathlib.Path(os.getcwd()).joinpath(pathlib.Path(manifest_path))
@@ -57,7 +62,7 @@ class _ListingManagerInstance:
 
         for l in self.listings:
             #store the filename so it can be retrieved later
-            name_hash = hash(l.name)
+            name_hash = _ListingManagerInstance.hash(l.name)
             filename = f"{name_hash}.json"
             listings_manifest["listings"].append(filename)
 
