@@ -7,6 +7,11 @@
     </head>
     <body>
         <h1>Remove Listing</h1>
+        <p>
+            Are you sure that you would like to remove "{{item_name}}"? <br>
+            This is a permanent action and cannot be undone. <br>
+            You will have to create the listing again if it is necessary again. <br>
+        </p>
         <form method="post" action="/listing_removed">
             <input type = "hidden" name = "item_name" value = "{{item_name}}" />
 

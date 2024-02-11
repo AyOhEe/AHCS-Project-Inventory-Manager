@@ -328,7 +328,6 @@ class Website(web.Application):
             #TODO respond with proper error
             raise web.HTTPBadRequest(reason="Incomplete request")
         
-        #TODO this REALLY needs a confirmation prompt.
         context = {"item_name" : name}
         response = aiohttp_jinja2.render_template('remove_listing.html.j2',
                                                 request,
