@@ -11,7 +11,7 @@
             <input type="hidden" id="item_old_name" name="item_old_name" value="{{item_name}}"><br>
 
             <label for="item_new_name">Item name:</label>
-            <input type="text" id="item_new_name" name="item_new_name" value="{{item_name}}"><br>
+            <input required type="text" id="item_new_name" name="item_new_name" value="{{item_name}}"><br>
             
             <label for="item_new_desc">Item description:</label><br>
             <textarea name="item_new_desc" rows="10" cols="30">
@@ -41,7 +41,7 @@
             </select><br>
 
             <label for="PIN">Employee PIN:</label>
-            <input type="password" id="PIN" name="PIN"><br>
+            <input required type="password" id="PIN" name="PIN"><br>
 
             <input type="submit" value="Submit"><br>
         <a href="/">Or, return to the homepage</a>

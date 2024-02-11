@@ -9,7 +9,7 @@
         <h1>Create Listing</h1>
         <form method="post" action="/listing_created">
             <label for="item_name">Item name:</label>
-            <input type="text" id="item_name" name="item_name" value="Unnamed item"><br>
+            <input required type="text" id="item_name" name="item_name" value="Unnamed item"><br>
             
             <label for="item_description">Item description:</label><br>
             <textarea name="item_description" rows="10" cols="30">
@@ -31,7 +31,7 @@ Write a brief description of the item here.
             </select><br>
 
             <label for="PIN">Employee PIN:</label>
-            <input type="password" id="PIN" name="PIN"><br>
+            <input required type="password" id="PIN" name="PIN"><br>
 
             <input type="submit" value="Submit">
         </form><br>
