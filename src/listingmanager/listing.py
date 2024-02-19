@@ -1,7 +1,7 @@
 import json
 
 
-from typing import Optional
+import typing
 
 
 #record type
@@ -24,7 +24,8 @@ class Listing:
         self.category = category
 
     def __str__(self) -> str:
-        return f"<Listing: {self.quantity}*\"{self.manufacturer} :: {self.name}\" - {self.category}>"
+        return f"Listing: {self.quantity}*\"{Listing.manufacturers[self.manufacturer]} :: {self.name}\" - {Listing.categories[self.category]}" \
+            +f"\n         {self.description[:30]}"
 
     def as_dict(self) -> dict:
         return {
@@ -36,7 +37,7 @@ class Listing:
         }
 
     @classmethod
-    def parse_categories(cls, file="listings/categories.txt"):
+    def parse_categories(cls, file: str="listings/categories.txt"):
         try:
             with open(file, "r") as f:
                 for line in f:
@@ -53,7 +54,7 @@ class Listing:
             print(f"Listing: could not find \"{file}\"!")
     
     @classmethod
-    def parse_manufacturers(cls, file="listings/manufacturers.txt"):
+    def parse_manufacturers(cls, file: str="listings/manufacturers.txt"):
         try:
             with open(file, "r") as f:
                 for line in f:
@@ -69,9 +70,8 @@ class Listing:
         except FileNotFoundError:
             print(f"Listing: could not find \"{file}\"!")
 
-    #TODO this error handling sucks
     @staticmethod 
-    def from_file(file_obj):
+    def from_file(file_obj: SupportsRead[str]) -> Optional[Listing] | bool:
         listing_data = json.load(file_obj)
 
         #replace the category index with the category name
@@ -79,7 +79,6 @@ class Listing:
             try:
                 index = int(listing_data["category"])
             except ValueError:
-                #TODO log error
                 print("Listing from_file: \"category\" should be a whole (>= 0) number!")
                 return None, False
 
@@ -87,7 +86,6 @@ class Listing:
             try:
                 index = int(listing_data["manufacturer"])
             except ValueError:
-                #TODO log error
                 print("Listing from_file: \"manufacturer\" should be a whole (>= 0) number!")
                 return None, False
 
