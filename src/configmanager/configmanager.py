@@ -3,7 +3,7 @@ import traceback
 
 
 from functools import wraps
-import typing
+from typing import List, Any, Optional, Tuple
 
 
 class _Config:
@@ -21,7 +21,7 @@ class _Config:
             traceback.print_exc()
 
     #returns the corresponding value for a set of keys in the configuration
-    def get_config_value(self, *keys: List[str]):
+    def get_config_value(self, *keys: List[str]) -> Tuple[bool, Optional[Any]]:
         def recursive_get(sub_dict, *args):
             if len(args) == 0:
                 return False, None
@@ -92,7 +92,7 @@ class ConfigManager:
     #returns the corresponding value for a set of keys in the configuration
     @staticmethod
     @check_exists
-    def get_config_value(*keys: List[str]) -> Optional[Any]:
+    def get_config_value(*keys: List[str]) -> Tuple[bool, Optional[Any]]:
         return ConfigManager.__instance.get_config_value(*keys)
         
     #sets the value in the configuration for the set of keys

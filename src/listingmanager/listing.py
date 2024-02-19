@@ -1,7 +1,7 @@
 import json
 
 
-import typing
+from typing import Optional, TextIO, Tuple
 
 
 #record type
@@ -37,7 +37,7 @@ class Listing:
         }
 
     @classmethod
-    def parse_categories(cls, file: str="listings/categories.txt"):
+    def parse_categories(cls, file: str="listings/categories.txt") -> None:
         try:
             with open(file, "r") as f:
                 for line in f:
@@ -54,7 +54,7 @@ class Listing:
             print(f"Listing: could not find \"{file}\"!")
     
     @classmethod
-    def parse_manufacturers(cls, file: str="listings/manufacturers.txt"):
+    def parse_manufacturers(cls, file: str="listings/manufacturers.txt") -> None:
         try:
             with open(file, "r") as f:
                 for line in f:
@@ -71,7 +71,7 @@ class Listing:
             print(f"Listing: could not find \"{file}\"!")
 
     @staticmethod 
-    def from_file(file_obj: SupportsRead[str]) -> Optional[Listing] | bool:
+    def from_file(file_obj: TextIO) -> Tuple[Optional['Listing'], bool]:
         listing_data = json.load(file_obj)
 
         #replace the category index with the category name
