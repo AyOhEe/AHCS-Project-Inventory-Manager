@@ -174,7 +174,7 @@ class _PinManagerInstance:
 #real pin manager using the singleton design pattern
 class PinManager:
     #the instance of the _PinManagerInstance class
-    __instance = None
+    __instance: _PinManagerInstance = None
 
 
     #ensures that an instance of the pin manager exists before running the wrapped function
@@ -200,17 +200,23 @@ class PinManager:
     @staticmethod
     @check_exists
     def add_new_employee(pin: str, employee: EmployeeRecord) -> bool | EmployeeRecord:
-        return PinManager.__instance.add_new_employee(pin, employee)
+        ret = PinManager.__instance.add_new_employee(pin, employee)
+        PinManager.__instance.save_to_disk()
+        return ret
     
     @staticmethod
     @check_exists
     def update_employee(hash: str, new_record: EmployeeRecord) -> bool | EmployeeRecord:
-        return PinManager.__instance.update_employee(hash, new_record)
+        ret = PinManager.__instance.update_employee(hash, new_record)
+        PinManager.__instance.save_to_disk()
+        return ret
     
     @staticmethod
     @check_exists
     def remove_employee(hash: str) -> bool | EmployeeRecord:
-        return PinManager.__instance.remove_employee(hash)
+        ret = PinManager.__instance.remove_employee(hash)
+        PinManager.__instance.save_to_disk()
+        return ret
     
     @staticmethod
     @check_exists
