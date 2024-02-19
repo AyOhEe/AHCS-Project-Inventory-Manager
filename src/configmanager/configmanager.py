@@ -111,14 +111,3 @@ class ConfigManager:
     @check_exists
     def save_config(override_path: Optional[str] = None) -> None:
         return ConfigManager.__instance.save_config(override_path)
-
-if __name__ == "__main__":
-    ConfigManager.initialise("config.json")
-
-
-    print(test_val := ConfigManager.get_config_value("test")[1])
-    print(ConfigManager.get_config_value("a", "b", "c"))
-    print(ConfigManager.set_config_value(test_val + 1, "test"))
-    print(ConfigManager.get_config_value("test"))
-    ConfigManager.save_config()
-
