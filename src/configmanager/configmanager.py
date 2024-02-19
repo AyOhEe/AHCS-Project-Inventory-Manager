@@ -3,10 +3,11 @@ import traceback
 
 
 from functools import wraps
+import typing
 
 
 class _Config:
-    def __init__(self, config_path="config.json"):
+    def __init__(self, config_path: str="config.json"):
         try:
             with open(config_path, "r") as f:
                 self.config_values = json.load(f)
@@ -19,7 +20,8 @@ class _Config:
             print(f"ConfigManager: {config_path} contains invalid JSON!")
             traceback.print_exc()
 
-    def get_config_value(self, *keys):
+    #returns the corresponding value for a set of keys in the configuration
+    def get_config_value(self, *keys: List[str]):
         def recursive_get(sub_dict, *args):
             if len(args) == 0:
                 return False, None
@@ -38,11 +40,14 @@ class _Config:
         
         return success, result
 
-        
-    def set_config_value(self, value, *keys):
+    #sets the value in the configuration for the set of keys
+    #if the entry does not exist, it will be created, but only if 
+    #the parent entries already exist.
+    #returns the new value    
+    def set_config_value(self, value: Any, *keys: List[str]) -> Any:
         def recursive_set(sub_dict, *args):
             if len(args) == 0:
-                return
+                raise KeyError("Configuration entry does not exist for ", *keys)
 
             if len(args) == 1:
                 sub_dict[args[0]] = value
@@ -52,7 +57,10 @@ class _Config:
         recursive_set(self.config_values, *keys)
         return self.get_config_value(*keys)
         
-    def save_config(self, override_path = None):
+    #saves the current configuration values to disk.
+    #by default this saves to the same file that was opened upon initialisation,
+    #but this can be changed by providing a file path as override_path
+    def save_config(self, override_path: Optional[str] = None) -> None:
         path = self.config_path
         if override_path != None:
             path = override_path
@@ -65,7 +73,7 @@ class ConfigManager:
 
     #ensures that an instance of the config manager exists before running the wrapped function
     def check_exists(f):
-
+        
         @wraps(f)
         def wrapper(*args, **kwargs):
             if ConfigManager.__instance == None:
@@ -75,23 +83,33 @@ class ConfigManager:
 
         return wrapper
 
+    #creates the configuration instance. if the config file is at a specific path,
+    #this MUST be called before the ConfigManager can be used.
     @staticmethod
-    def initialise(config_path="config.json"):
+    def initialise(config_path: str="config.json") -> None:
         ConfigManager.__instance = _Config(config_path)
 
+    #returns the corresponding value for a set of keys in the configuration
     @staticmethod
     @check_exists
-    def get_config_value(*keys):
+    def get_config_value(*keys: List[str]) -> Optional[Any]:
         return ConfigManager.__instance.get_config_value(*keys)
         
+    #sets the value in the configuration for the set of keys
+    #if the entry does not exist, it will be created, but only if 
+    #the parent entries already exist.
+    #returns the new value    
     @staticmethod
     @check_exists
-    def set_config_value(keys, value):
-        return ConfigManager.__instance.set_config_value(keys, value)
+    def set_config_value(value: Any, *keys: List[str]) -> Any:
+        return ConfigManager.__instance.set_config_value(value, *keys)
       
+    #saves the current configuration values to disk.
+    #by default this saves to the same file that was opened upon initialisation,
+    #but this can be changed by providing a file path as override_path
     @staticmethod  
     @check_exists
-    def save_config(override_path = None):
+    def save_config(override_path: Optional[str] = None) -> None:
         return ConfigManager.__instance.save_config(override_path)
 
 if __name__ == "__main__":
