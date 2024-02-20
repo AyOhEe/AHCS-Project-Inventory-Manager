@@ -193,8 +193,8 @@ class PinManager:
         return wrapper
 
     @staticmethod
-    def initialise():
-        PinManager.__instance = _PinManagerInstance()
+    def initialise(datapath=None):
+        PinManager.__instance = _PinManagerInstance(datapath)
 
     @staticmethod
     @check_exists
