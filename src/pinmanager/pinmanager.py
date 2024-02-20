@@ -42,8 +42,8 @@ class EmployeeRecord:
 #the class which actually handles PIN management. only one instance of this should ever exist,
 #managed by PinManager
 class _PinManagerInstance:
-    def __init__(self):
-        self.employee_data_file = ConfigManager.get_config_value("employee data path")[1]
+    def __init__(self, datapath=None):
+        self.employee_data_file = datapath or ConfigManager.get_config_value("employee data path")[1]
         self.employee_records = self.read_records()
 
         atexit.register(self.on_exit)
@@ -186,11 +186,15 @@ class PinManager:
         @wraps(f)
         def wrapper(*args, **kwargs):
             if PinManager.__instance == None:
-                PinManager.__instance = _PinManagerInstance()
+                PinManager.initialise()
 
             return f(*args, **kwargs)
 
         return wrapper
+
+    @staticmethod
+    def initialise():
+        PinManager.__instance = _PinManagerInstance()
 
     @staticmethod
     @check_exists
@@ -235,7 +239,7 @@ if __name__ == "__main__":
 
     #reset the employee data and restart the pin manager
     os.remove("EmployeeData.json")
-    PinManager.__instance = _PinManagerInstance()
+    PinManager.initialise()
 
     #add a new key and check that it exists
     PinManager.add_new_employee("1234567", EmployeeRecord("", "John Doe", False))
