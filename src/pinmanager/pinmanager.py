@@ -68,10 +68,7 @@ class _PinManagerInstance:
         try:
             f = open(self.employee_data_file, "r")
 
-        except OSError:
-            #ensure the file is closed before opening it again to write
-            f.close()
-
+        except FileNotFoundError:
             #whoops, doesn't exist, just create it return an empty list for now
             with open(self.employee_data_file, "w") as f:
                 f.write(DEFAULT_EMPLOYEE_DATA_JSON)
