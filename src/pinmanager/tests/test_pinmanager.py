@@ -1,4 +1,5 @@
 import unittest
+import traceback
 import json
 import os
 
@@ -25,4 +26,9 @@ class TestPinManager(unittest.TestCase):
         os.remove("dummydata.json")
 
     def test_0_pinmanager_initialisation(self):
-        PinManager.initialise("dummydata.json")
+        try:
+            PinManager.initialise("dummydata.json")
+            raise Exception()
+        except Exception as ex:
+            self.fail(f"PinManager.initialise failure!")
+            traceback.print_exc()
