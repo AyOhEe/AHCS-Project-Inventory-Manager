@@ -1,3 +1,4 @@
+import atexit
 import unittest
 import traceback
 import json
@@ -19,14 +20,17 @@ class TestPinManager(unittest.TestCase):
             ]
         }
 
-        with open("dummydata.json", "w") as f:
+        with open("test_temp_data/dummydata.json", "w") as f:
             json.dump(dummydata, f)
 
     def tearDown(self):
-        os.remove("dummydata.json")
+        os.remove("test_temp_data/dummydata.json")
 
     def test_0_pinmanager_initialisation(self):
         try:
-            PinManager.initialise("dummydata.json")
+            PinManager.initialise("test_temp_data/dummydata.json")
         except Exception as ex:
             self.fail(f"PinManager.initialise failure!")
+
+        #if that succeeded, the pin manager shouldn't save it's data on exit anymore.
+        atexit.unregister(PinManager._PinManager__instance.on_exit)

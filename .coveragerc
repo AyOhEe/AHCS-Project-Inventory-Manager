@@ -1,0 +1,16 @@
+[run]
+omit =
+    main.py
+
+    ; Tests don't need to be tracked for coverage
+    */tests/*
+
+[report]
+; Regexes for lines to exclude from consideration
+exclude_also =
+
+    ; non-reachable code doesn't matter
+    if 0:
+    if __name__ == .__main__.:
+
+ignore_errors = True
