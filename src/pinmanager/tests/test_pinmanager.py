@@ -28,7 +28,5 @@ class TestPinManager(unittest.TestCase):
     def test_0_pinmanager_initialisation(self):
         try:
             PinManager.initialise("dummydata.json")
-            raise Exception()
         except Exception as ex:
             self.fail(f"PinManager.initialise failure!")
-            traceback.print_exc()
