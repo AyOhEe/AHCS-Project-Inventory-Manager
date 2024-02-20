@@ -69,6 +69,9 @@ class _PinManagerInstance:
             f = open(self.employee_data_file, "r")
 
         except OSError:
+            #ensure the file is closed before opening it again to write
+            f.close()
+
             #whoops, doesn't exist, just create it return an empty list for now
             with open(self.employee_data_file, "w") as f:
                 f.write(DEFAULT_EMPLOYEE_DATA_JSON)
@@ -80,6 +83,9 @@ class _PinManagerInstance:
         try:
             data = json.loads(f.read())
         except json.JSONDecodeError:
+            #file no longer in use - close it
+            f.close()
+
             #whoa. that's kinda bad. the json file contained bad JSON.
             #assuming that the program never wrote bad JSON, someone tampered with it
             #or there's been a hardware failure. #TODO adequate response for this scenario
@@ -87,6 +93,9 @@ class _PinManagerInstance:
 
         #okay, we read the file successfully. now we create the employee records from it
         if "employees" not in data:
+            #file no longer in use - close it
+            f.close()
+
             #TODO this should probably complain a lot more
             #no data
             return {}
@@ -97,6 +106,10 @@ class _PinManagerInstance:
             if ("PIN_hash" in employee) and ("name" in employee) and ("has_admin" in employee):
                 records_dict[employee["PIN_hash"]] = \
                     EmployeeRecord(employee["PIN_hash"], employee["name"], employee["has_admin"])
+
+
+        #file no longer in use - close it
+        f.close()
 
         return records_dict
 
