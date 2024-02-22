@@ -66,7 +66,7 @@ class TestPinManager(unittest.TestCase):
 
 
         #filled with records
-        records = [EmployeeRecord(HASH_FUNCTION(data[0]), data[1], data[2]) for data in PinManager.EXAMPLE_EMPLOYEES]
+        records = [EmployeeRecord(HASH_FUNCTION(data[0]), data[1], data[2]) for data in TestPinManager.EXAMPLE_EMPLOYEES]
         filled_dict = {"employees" : [
             record.dict_serialise() for record in records
         ]}
