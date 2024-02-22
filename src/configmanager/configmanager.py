@@ -13,11 +13,11 @@ class _Config:
                 self.config_values = json.load(f)
                 self.config_path = config_path
 
-        except fnfe as FileNotFoundError:
+        except FileNotFoundError as fnfe:
             print(f"ConfigManager: Could not find {config_path}")
             raise fnfe
 
-        except jde as json.JSONDecodeError:
+        except json.JSONDecodeError as jde:
             print(f"ConfigManager: {config_path} contains invalid JSON!")
             raise jde
 
