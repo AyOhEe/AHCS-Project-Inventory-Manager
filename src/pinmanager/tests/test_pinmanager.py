@@ -37,21 +37,24 @@ class TestPinManager(unittest.TestCase):
         #initialisation with a valid json file containing no records is already tested
         # - if setUp ran without throwing, then it works.
         
-        #TODO assertions
-        #nonexistent file
+        #nonexistent file - one default entry is added
         self.remove_data_file()
         PinManager.initialise(TestPinManager.DUMMY_DATA_PATH)
         atexit.unregister(PinManager._PinManager__instance.on_exit)
 
-        #TODO assertions
-        #invalid json
+        self.assertTrue(len(PinManager.get_employees) == 1)
+
+
+        #invalid json - should raise an execption (not a specific exception class)
         self.remove_data_file()
         with open(TestPinManager.DUMMY_DATA_PATH, "w") as f:
             f.write("this is not valid JSON")
-        PinManager.initialise(TestPinManager.DUMMY_DATA_PATH)
-        atexit.unregister(PinManager._PinManager__instance.on_exit)
 
-        #TODO assertions
+        with self.assertRaises(Exception):
+            PinManager.initialise(TestPinManager.DUMMY_DATA_PATH)
+            atexit.unregister(PinManager._PinManager__instance.on_exit)
+
+
         #doesn't contain an employees entry
         self.remove_data_file()
         with open(TestPinManager.DUMMY_DATA_PATH, "w") as f:
@@ -59,15 +62,22 @@ class TestPinManager(unittest.TestCase):
         PinManager.initialise(TestPinManager.DUMMY_DATA_PATH)
         atexit.unregister(PinManager._PinManager__instance.on_exit)
 
-        #TODO assertions
+        self.assertEqual(dict(), PinManager.get_employees())
+
+
         #filled with records
+        records = [EmployeeRecord(HASH_FUNCTION(data[0]), data[1], data[2]) for data in PinManager.EXAMPLE_EMPLOYEES]
         filled_dict = {"employees" : [
-            EmployeeRecord(*data).dict_serialise() for data in PinManager.EXAMPLE_EMPLOYEES
+            record.dict_serialise() for record in records
         ]}
+        expected_result = {record.PIN_hash : record for record in records}
+
         with open(TestPinManager.DUMMY_DATA_PATH, "w") as f:
             json.dump(filled_dict, f)
         PinManager.initialise(TestPinManager.DUMMY_DATA_PATH)
         atexit.unregister(PinManager._PinManager__instance.on_exit)
+
+        self.assertEqual(PinManager.get_employees(), expected_result)
 
     #tests the creation of employee entries
     def test_1_pinmanager_add_employee(self):
