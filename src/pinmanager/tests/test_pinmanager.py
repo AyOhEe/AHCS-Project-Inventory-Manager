@@ -11,6 +11,11 @@ from pinmanager.pinmanager import HASH_FUNCTION
 
 class TestPinManager(unittest.TestCase):
     DUMMY_DATA_PATH = "test_temp_data/dummydata.json"
+    EXAMPLE_EMPLOYEES = employee_data = [
+        ("1234567", "John Doe", True), 
+        ("7654321", "Jane Doe", False), 
+        ("7801425", "Adam", True)
+    ]
 
     def setUp(self):
         self.remove_data_file()
@@ -39,8 +44,7 @@ class TestPinManager(unittest.TestCase):
         PinManager.initialise(TestPinManager.DUMMY_DATA_PATH)
         atexit.unregister(PinManager._PinManager__instance.on_exit)
 
-        employee_data = [("1234567", "John Doe", True), ("7654321", "Jane Doe", False), ("7801425", "Adam", True)]
-        for data in employee_data:
+        for data in TestPinManager.EXAMPLE_EMPLOYEES:
             expected_hash = HASH_FUNCTION(data[0])
             record = EmployeeRecord("", data[1], data[2])
             ret_val = PinManager.add_new_employee(data[0], record)
@@ -72,17 +76,29 @@ class TestPinManager(unittest.TestCase):
 
     @unittest.expectedFailure
     def test_6_pinmanager_verify_pin(self):
-        self.fail("Unimplemented test.")
+        PinManager.initialise(TestPinManager.DUMMY_DATA_PATH)
+        atexit.unregister(PinManager._PinManager__instance.on_exit)
 
+        records = []
+        for data in TestPinManager.EXAMPLE_EMPLOYEES:
+            self.assertFalse(PinManager.verify_pin(data[0], False))
+            self.assertFalse(PinManager.verify_pin(data[0], True))
+
+            record = EmployeeRecord("", data[1], data[2])
+            records.append(PinManager.add_new_employee(data[0], record))
+
+            self.assertTrue(PinManager.verify_pin(data[0], False))
+            self.assertEqual(PinManager.verify_pin(data[0], True), data[2])
+
+        
     def test_7_pinmanager_save_to_disk(self):
         PinManager.initialise(TestPinManager.DUMMY_DATA_PATH)
         atexit.unregister(PinManager._PinManager__instance.on_exit)
         self.assertEqual(dict(), PinManager.get_employees())
         
         
-        employee_data = [("1234567", "John Doe", True), ("7654321", "Jane Doe", False), ("7801425", "Adam", True)]
         records = []
-        for data in employee_data:
+        for data in TestPinManager.EXAMPLE_EMPLOYEES:
             record = EmployeeRecord("", data[1], data[2])
             records.append(PinManager.add_new_employee(data[0], record))
 
