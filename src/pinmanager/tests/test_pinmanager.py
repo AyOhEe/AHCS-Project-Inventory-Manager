@@ -72,6 +72,10 @@ class TestPinManager(unittest.TestCase):
             PinManager.update_employee(record.PIN_hash, new_record)
             self.assertEqual(new_record, PinManager.get_employee(record.PIN_hash))
 
+        nonexistent_hashes = ["abcd", "1234", "5678", "efgh"]
+        for hash in nonexistent_hashes:
+            self.assertFalse(PinManager.update_employee(hash, EmployeeRecord("", "", "")))
+
     def test_3_pinmanager_remove_employee(self):
         self.assertEqual(PinManager.get_employees(), dict())
 
@@ -84,6 +88,10 @@ class TestPinManager(unittest.TestCase):
             self.assertEqual(record, PinManager.get_employee(record.PIN_hash))
             PinManager.remove_employee(record.PIN_hash)
             self.assertFalse(PinManager.get_employee(record.PIN_hash))
+
+        nonexistent_hashes = ["abcd", "1234", "5678", "efgh"]
+        for hash in nonexistent_hashes:
+            self.assertFalse(PinManager.remove_employee(hash))
 
     def test_4_pinmanager_get_employee(self):
         for data in TestPinManager.EXAMPLE_EMPLOYEES:
