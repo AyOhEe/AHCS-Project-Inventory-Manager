@@ -239,7 +239,7 @@ class PinManager:
     
     @staticmethod
     @check_exists
-    def get_employee(hash) -> EmployeeRecord:
+    def get_employee(hash) -> bool | EmployeeRecord:
         return PinManager.__instance.get_employee(hash)
     
     @staticmethod
