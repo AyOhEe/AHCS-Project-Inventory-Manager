@@ -49,7 +49,7 @@ class _PinManagerInstance:
         atexit.register(self.on_exit)
 
     #save the PIN hashes to disk when the program exits
-    def on_exit(self):
+    def on_exit(self): #pragma: no cover
         self.save_to_disk()
     
     #saves all employee data to disk
