@@ -74,7 +74,7 @@ class TestPinManager(unittest.TestCase):
         
         for record in records:
             self.assertEqual(record, PinManager.get_employee(record.PIN_hash))
-            PinManager.get_employee(record.PIN_hash)
+            PinManager.remove_employee(record.PIN_hash)
             self.assertFalse(PinManager.get_employee(record.PIN_hash))
 
     @unittest.expectedFailure
