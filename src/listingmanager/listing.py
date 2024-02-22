@@ -90,9 +90,3 @@ class Listing:
                 return None, False
 
         return Listing(**listing_data), True
-
-if __name__ == "__main__":   
-    Listing.parse_categories()
-    print(Listing.categories)
-    Listing.parse_manufacturers()
-    print(Listing.manufacturers)

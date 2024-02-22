@@ -250,6 +250,3 @@ class ListingManager:
     @check_exists
     def query_listings(name_segment, item_category, item_manufacturer):
         return ListingManager.__instance.query_listings(name_segment, item_category, item_manufacturer)
-    
-if __name__ == "__main__":
-    ListingManager.initialise()
