@@ -13,12 +13,14 @@ class _Config:
                 self.config_values = json.load(f)
                 self.config_path = config_path
 
-        except FileNotFoundError:
+        except fnfe as FileNotFoundError:
             print(f"ConfigManager: Could not find {config_path}")
+            raise fnfe
 
-        except json.JSONDecodeError:
+        except jde as json.JSONDecodeError:
             print(f"ConfigManager: {config_path} contains invalid JSON!")
-            traceback.print_exc()
+            raise jde
+
 
     #returns the corresponding value for a set of keys in the configuration
     def get_config_value(self, *keys: List[str]) -> Tuple[bool, Optional[Any]]:
