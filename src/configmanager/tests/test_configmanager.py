@@ -9,8 +9,12 @@ from configmanager import ConfigManager
 class TestConfigManager(unittest.TestCase):
     DUMMY_CONFIG_PATH = "dummyconfig.json"
 
+    def remove_dummy_config(self):
+        if os.path.exists(TestConfigManager.DUMMY_CONFIG_PATH):
+            os.remove(TestConfigManager.DUMMY_CONFIG_PATH)
+
     def test_0_initialise(self):
-        os.remove(TestConfigManager.DUMMY_CONFIG_PATH)
+        self.remove_dummy_config()
         with self.assertRaises(FileNotFoundError):
             ConfigManager.initialise(TestConfigManager.DUMMY_CONFIG_PATH)
         
@@ -28,13 +32,16 @@ class TestConfigManager(unittest.TestCase):
 
     @unittest.expectedFailure
     def test_1_get_config_value(self):
+        self.remove_dummy_config()
         self.fail("Unimplemented test")
         
     @unittest.expectedFailure
     def test_2_set_config_value(self):
+        self.remove_dummy_config()
         self.fail("Unimplemented test")
         
     @unittest.expectedFailure
     def test_3_save_config(self):
+        self.remove_dummy_config()
         self.fail("Unimplemented test")
         
