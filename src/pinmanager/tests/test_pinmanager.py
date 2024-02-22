@@ -34,12 +34,39 @@ class TestPinManager(unittest.TestCase):
 
     #tests the initialisation of the pin manager
     def test_0_pinmanager_initialisation(self):
-        try:
-            PinManager.initialise(TestPinManager.DUMMY_DATA_PATH)
-        except Exception as ex:
-            self.fail(f"PinManager.initialise failure!")
+        #initialisation with a valid json file containing no records is already tested
+        # - if setUp ran without throwing, then it works.
+        
+        #TODO assertions
+        #nonexistent file
+        self.remove_data_file()
+        PinManager.initialise(TestPinManager.DUMMY_DATA_PATH)
+        atexit.unregister(PinManager._PinManager__instance.on_exit)
 
-        #if that succeeded, the pin manager shouldn't save it's data on exit anymore.
+        #TODO assertions
+        #invalid json
+        self.remove_data_file()
+        with open(TestPinManager.DUMMY_DATA_PATH, "w") as f:
+            f.write("this is not valid JSON")
+        PinManager.initialise(TestPinManager.DUMMY_DATA_PATH)
+        atexit.unregister(PinManager._PinManager__instance.on_exit)
+
+        #TODO assertions
+        #doesn't contain an employees entry
+        self.remove_data_file()
+        with open(TestPinManager.DUMMY_DATA_PATH, "w") as f:
+            json.dump(dict(), f)
+        PinManager.initialise(TestPinManager.DUMMY_DATA_PATH)
+        atexit.unregister(PinManager._PinManager__instance.on_exit)
+
+        #TODO assertions
+        #filled with records
+        filled_dict = {"employees" : [
+            EmployeeRecord(*data).dict_serialise() for data in PinManager.EXAMPLE_EMPLOYEES
+        ]}
+        with open(TestPinManager.DUMMY_DATA_PATH, "w") as f:
+            json.dump(filled_dict, f)
+        PinManager.initialise(TestPinManager.DUMMY_DATA_PATH)
         atexit.unregister(PinManager._PinManager__instance.on_exit)
 
     #tests the creation of employee entries
