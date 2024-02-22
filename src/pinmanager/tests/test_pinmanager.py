@@ -58,9 +58,19 @@ class TestPinManager(unittest.TestCase):
             ret_val = PinManager.add_new_employee(data[0], record)
             self.assertFalse(ret_val)
 
-    @unittest.expectedFailure
     def test_2_pinmanager_update_employee(self):
-        self.fail("Unimplemented test.")
+        records = []
+        new_records = []
+        for data in TestPinManager.EXAMPLE_EMPLOYEES:
+            record = EmployeeRecord("", data[1], data[2])
+            new_record = EmployeeRecord("", data[1] + "_NEW", not data[2])
+            records.append(PinManager.add_new_employee(data[0], record))
+            new_records.append(new_record)
+        
+        for record, new_record in zip(records, new_records):
+            self.assertEqual(record, PinManager.get_employee(record.PIN_hash))
+            PinManager.update_employee(record.PIN_hash, new_record)
+            self.assertEqual(new_record, PinManager.get_employee(record.PIN_hash))
 
     def test_3_pinmanager_remove_employee(self):
         PinManager.initialise(TestPinManager.DUMMY_DATA_PATH)
