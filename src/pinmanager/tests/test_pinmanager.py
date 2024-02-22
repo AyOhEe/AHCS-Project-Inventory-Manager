@@ -42,7 +42,7 @@ class TestPinManager(unittest.TestCase):
         PinManager.initialise(TestPinManager.DUMMY_DATA_PATH)
         atexit.unregister(PinManager._PinManager__instance.on_exit)
 
-        self.assertTrue(len(PinManager.get_employees) == 1)
+        self.assertTrue(len(PinManager.get_employees()) == 1)
 
 
         #invalid json - should raise an execption (not a specific exception class)
