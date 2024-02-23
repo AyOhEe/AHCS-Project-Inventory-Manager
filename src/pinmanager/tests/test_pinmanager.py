@@ -9,6 +9,9 @@ from pinmanager import PinManager, EmployeeRecord
 from pinmanager.pinmanager import HASH_FUNCTION
 
 
+from unittest import mock
+
+
 class TestPinManager(unittest.TestCase):
     DUMMY_DATA_PATH = "test_temp_data/dummydata.json"
     EXAMPLE_EMPLOYEES = employee_data = [
@@ -178,3 +181,47 @@ class TestPinManager(unittest.TestCase):
         with open(TestPinManager.DUMMY_DATA_PATH, "r") as f:
             actual_data = json.load(f)
         self.assertEqual(expected_data, actual_data)
+
+    def test_8_default_initialise(self):
+        func_was_called = False
+        original_initialise = PinManager.initialise
+        def initialise_replacement():
+            nonlocal func_was_called
+            
+            original_initialise(TestPinManager.DUMMY_DATA_PATH)
+            atexit.unregister(PinManager._PinManager__instance.on_exit)
+            func_was_called = True
+
+        def verify_called():
+            nonlocal func_was_called
+
+            self.assertTrue(func_was_called)
+            func_was_called = False
+            PinManager._PinManager__instance = None
+
+        #this test only ensures that each PinManager method initialises the interface
+        #so it's completely fine to replace the method here
+        with mock.patch.object(PinManager, 'initialise', initialise_replacement):
+            PinManager.initialise()
+            verify_called()
+
+            PinManager.verify_pin("This doesn't exist and isn't meant to.")
+            verify_called()
+
+            PinManager.add_new_employee("1234", EmployeeRecord("", "Test name", False))
+            verify_called()
+
+            PinManager.update_employee("Doesn't exist", EmployeeRecord("", "Test name", False))
+            verify_called()
+
+            PinManager.remove_employee("Doesn't exist")
+            verify_called()
+
+            PinManager.get_employees()
+            verify_called()
+
+            PinManager.get_employee("Doesn't exist")
+            verify_called()
+
+            PinManager.save_to_disk()
+            verify_called()
