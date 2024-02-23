@@ -49,7 +49,7 @@ class _Config:
     def set_config_value(self, value: Any, *keys: List[str]) -> Any:
         def recursive_set(sub_dict, *args):
             if len(args) == 0:
-                raise KeyError("Configuration entry does not exist for ", *keys)
+                raise KeyError("No keys provided")
 
             if len(args) == 1:
                 sub_dict[args[0]] = value
