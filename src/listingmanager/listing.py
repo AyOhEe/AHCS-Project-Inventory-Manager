@@ -17,6 +17,7 @@ class Listing:
             manufacturer: int = 0,
             quantity: int = 0
             ):
+        #TODO validate like all of this
         self.name = name
         self.description = description
         self.manufacturer = manufacturer
@@ -26,6 +27,19 @@ class Listing:
     def __str__(self) -> str:
         return f"Listing: {self.quantity}*\"{Listing.manufacturers[self.manufacturer]} :: {self.name}\" - {Listing.categories[self.category]}" \
             +f"\n         {self.description[:30]}"
+    
+    def __eq__(self, __value: object) -> bool:
+        if isinstance(__value, Listing):
+            return (self.name == __value.name) \
+            and (self.description == __value.description) \
+            and (self.category == __value.category) \
+            and (self.manufacturer == __value.manufacturer) \
+            and (self.quantity == __value.quantity)
+        
+        return False
+    
+    def __ne__(self, __value: object) -> bool:
+        return not self == __value
 
     def as_dict(self) -> dict:
         return {
@@ -78,6 +92,8 @@ class Listing:
         if "category" in listing_data:
             try:
                 index = int(listing_data["category"])
+                if index < 0:
+                    return None, False
             except ValueError:
                 print("Listing from_file: \"category\" should be a whole (>= 0) number!")
                 return None, False
@@ -85,6 +101,8 @@ class Listing:
         if "manufacturer" in listing_data:
             try:
                 index = int(listing_data["manufacturer"])
+                if index < 0:
+                    return None, False
             except ValueError:
                 print("Listing from_file: \"manufacturer\" should be a whole (>= 0) number!")
                 return None, False
