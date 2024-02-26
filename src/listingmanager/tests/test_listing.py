@@ -113,13 +113,10 @@ class TestListing(unittest.TestCase):
 
         for file, listing, fails in zip(filenames, listings, should_fail):
             f = open(file, "r")
-            print(file)
             if fails:
                 self.assertEqual(Listing.from_file(f)[0], None)
             else:
-                print(str(listing))
                 fromfile = Listing.from_file(f)[0]
-                print(str(fromfile))
                 self.assertEqual(fromfile, listing)
             f.close()
             os.remove(file)
