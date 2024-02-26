@@ -14,7 +14,6 @@ class TestListingManager(unittest.TestCase):
     DUMMY_CATEGORIES = ["Category 1", "Category 2", "Category 3"]
     DUMMY_MANUFACTURERS = ["Manufacturer 1", "Manufacturer 2", "Manufacturer 3"]
 
-    #TODO better data
     DUMMY_BAD_MANIFEST = {}
     DUMMY_BLANK_MANIFEST = {"listings" : []}
     DUMMY_VALID_LISTING = {"listings" : ["dummy_listing.json", "doesn't exist", "bad_listing.json"]}
@@ -25,12 +24,18 @@ class TestListingManager(unittest.TestCase):
 
     def tearDown(self):
         self.remove_manifest()
+        self.remove_listing_files()
 
     def remove_manifest(self):
         if os.path.exists(TestListingManager.DUMMY_MANIFEST_FILE):
             os.remove(TestListingManager.DUMMY_MANIFEST_FILE)
 
-    #TODO remove created files
+    def remove_listing_files():
+        if os.path.exists(TestListingManager.DUMMY_LISTING_FILE):
+            os.remove(TestListingManager.DUMMY_LISTING_FILE)
+        
+        if os.path.exists(TestListingManager.DUMMY_BAD_LISTING_FILE):
+            os.remove(TestListingManager.DUMMY_BAD_LISTING_FILE)
         
     def prepare_config(self):
         with open(TestListingManager.DUMMY_CATEGORIES_FILE, "w") as f:
