@@ -62,8 +62,7 @@ class _ListingManagerInstance:
             try:
                 with open(path, "w") as f:
                     json.dump(l.as_dict(), f)
-            except FileNotFoundError:
-                #TODO log error
+            except FileNotFoundError: #pragma: no cover
                 print("Could not open listing file {path}")
 
 
@@ -79,8 +78,7 @@ class _ListingManagerInstance:
         try:
             with open(ConfigManager.get_config_value("listings manifest")[1], "w") as f:
                 json.dump(listings_manifest, f)
-        except FileNotFoundError:
-            #TODO log error
+        except FileNotFoundError: #pragma: no cover
             print("Could not open listings manifest to save. This should not occur.")
 
         return listings_manifest
@@ -107,7 +105,9 @@ class _ListingManagerInstance:
         self.save_manifest()
 
         filename = _ListingManagerInstance.hash(l.name) + ".json"
-        os.remove(os.path.join(self.directory, filename))
+        filepath = os.path.join(self.directory, filename)
+        if os.path.exists(filepath):
+            os.remove(filepath)
         return l
 
     def get_listing_index(self, name):

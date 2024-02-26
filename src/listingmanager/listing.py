@@ -38,6 +38,9 @@ class Listing:
         return f"Listing: {self.quantity}*\"{Listing.manufacturers[self.manufacturer]} :: {self.name}\" - {Listing.categories[self.category]}" \
             +f"\n         {self.description[:30]}"
     
+    def __repr__(self) -> str: #pragma: no cover
+        return self.name
+    
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, Listing):
             return (self.name == __value.name) \
