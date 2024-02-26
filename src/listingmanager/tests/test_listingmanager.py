@@ -17,7 +17,7 @@ class TestListingManager(unittest.TestCase):
 
     DUMMY_BAD_MANIFEST = {}
     DUMMY_BLANK_MANIFEST = {"listings" : []}
-    DUMMY_VALID_LISTING = {"listings" : ["dummy_listing.json", "doesn't exist", "bad_listing.json"]}
+    DUMMY_VALID_MANIFEST = {"listings" : ["dummy_listing.json", "doesn't exist", "bad_listing.json"]}
 
     DUMMY_LISTING_FILE = "test_temp_data/dummy_listing.json"
     DUMMY_BAD_LISTING_FILE = "test_temp_data/bad_listing.json"
