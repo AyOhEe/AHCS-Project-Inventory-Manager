@@ -64,20 +64,20 @@ class TestListingManager(unittest.TestCase):
         self.remove_manifest()
         self.prepare_config()
         with self.assertRaises(FileNotFoundError):
-            TestListingManager.initialise(TestListingManager.DUMMY_MANIFEST_FILE)
+            ListingManager.initialise(TestListingManager.DUMMY_MANIFEST_FILE)
 
         with self.assertRaises(FileNotFoundError):
-            TestListingManager.initialise()
+            ListingManager.initialise()
 
 
         with open(TestListingManager.DUMMY_MANIFEST_FILE, "w") as f:
             json.dump(TestListingManager.DUMMY_BAD_MANIFEST, f)
         with self.assertRaises(ValueError):
-            TestListingManager.initialise()
+            ListingManager.initialise()
 
         with open(TestListingManager.DUMMY_MANIFEST_FILE, "w") as f:
             json.dump(TestListingManager.DUMMY_BLANK_MANIFEST, f)
-        TestListingManager.initialise()
+        ListingManager.initialise()
 
 
         with open(TestListingManager.DUMMY_MANIFEST_FILE, "w") as f:
@@ -86,7 +86,7 @@ class TestListingManager(unittest.TestCase):
             json.dump(TestListingManager.DUMMY_LISTING.as_dict(), f)
         with open(TestListingManager.DUMMY_BAD_LISTING_FILE, f) as f:
             f.write("This isn't valid JSON.")
-        TestListingManager.initialise()
+        ListingManager.initialise()
 
     @unittest.expectedFailure
     def test_1_create_listing(self):
