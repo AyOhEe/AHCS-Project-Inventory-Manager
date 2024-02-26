@@ -22,6 +22,14 @@ class TestListingManager(unittest.TestCase):
     DUMMY_BAD_LISTING_FILE = "test_temp_data/bad_listing.json"
     DUMMY_LISTING = Listing("Listing 1", "Description 1", 0, 0, 0)
 
+    DUMMY_CONFIG_FILE = "test_temp_data/config.json"
+    DUMMY_CONFIG_DATA = dict()
+
+    def setUp(self):
+        with open(TestListingManager.DUMMY_CONFIG_FILE, "w") as f:
+            json.dump(TestListingManager.DUMMY_CONFIG_DATA, f)
+        ConfigManager.initialise(TestListingManager.DUMMY_CONFIG_FILE)
+
     def tearDown(self):
         self.remove_manifest()
         self.remove_listing_files()
