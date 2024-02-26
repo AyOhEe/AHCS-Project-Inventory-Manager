@@ -39,7 +39,7 @@ class TestListingManager(unittest.TestCase):
         if os.path.exists(TestListingManager.DUMMY_MANIFEST_FILE):
             os.remove(TestListingManager.DUMMY_MANIFEST_FILE)
 
-    def remove_listing_files():
+    def remove_listing_files(self):
         if os.path.exists(TestListingManager.DUMMY_LISTING_FILE):
             os.remove(TestListingManager.DUMMY_LISTING_FILE)
         
