@@ -1,13 +1,78 @@
 import unittest
+import os
 
 
-from listingmanager import ListingManager
+from listingmanager import ListingManager, Listing
+from configmanager import ConfigManager
 
 
 class TestListingManager(unittest.TestCase):
-    @unittest.expectedFailure
+    DUMMY_MANIFEST_FILE = "test_temp_data/listing_manifest.json"
+    DUMMY_CATEGORIES_FILE = "test_temp_data/listing_categories.txt"
+    DUMMY_MANUFACTURERS_FILE = "test_temp_data/listing_manufacturers.txt"
+
+    DUMMY_CATEGORIES = ["Category 1", "Category 2", "Category 3"]
+    DUMMY_MANUFACTURERS = ["Manufacturer 1", "Manufacturer 2", "Manufacturer 3"]
+
+    #TODO better data
+    DUMMY_BAD_MANIFEST = {}
+    DUMMY_BLANK_MANIFEST = {"listings" : []}
+    DUMMY_VALID_LISTING = {"listings" : ["dummy_listing.json", "doesn't exist", "bad_listing.json"]}
+
+    DUMMY_LISTING_FILE = "test_temp_data/dummy_listing.json"
+    DUMMY_BAD_LISTING_FILE = "test_temp_data/bad_listing.json"
+    DUMMY_LISTING = Listing("Listing 1", "Description 1", 0, 0, 0)
+
+    def tearDown(self):
+        self.remove_manifest()
+
+    def remove_manifest(self):
+        if os.path.exists(TestListingManager.DUMMY_MANIFEST_FILE):
+            os.remove(TestListingManager.DUMMY_MANIFEST_FILE)
+
+    #TODO remove created files
+        
+    def prepare_config(self):
+        with open(TestListingManager.DUMMY_CATEGORIES_FILE, "w") as f:
+            for category in TestListingManager.DUMMY_CATEGORIES:
+                f.write(category + "\n")
+
+        with open(TestListingManager.DUMMY_MANUFACTURERS_FILE, "w") as f:
+            for manufacturer in TestListingManager.DUMMY_MANUFACTURERS:
+                f.write(manufacturer + "\n")
+
+        ConfigManager.set_config_value(TestListingManager.DUMMY_CATEGORIES_FILE, "listing categories file")
+        ConfigManager.set_config_value(TestListingManager.DUMMY_MANUFACTURERS_FILE, "listing manufacturers file")
+        ConfigManager.set_config_value(TestListingManager.DUMMY_MANIFEST_FILE, "listings manifest")
+
     def test_0_initialise(self):
-        self.fail("Unimplemented test")
+        #TODO ensure this covers all cases.
+        self.remove_manifest()
+        self.prepare_config()
+        with self.assertRaises(FileNotFoundError):
+            TestListingManager.initialise(TestListingManager.DUMMY_MANIFEST_FILE)
+
+        with self.assertRaises(FileNotFoundError):
+            TestListingManager.initialise()
+
+
+        with open(TestListingManager.DUMMY_MANIFEST_FILE, "w") as f:
+            json.dump(TestListingManager.DUMMY_BAD_MANIFEST, f)
+        with self.assertRaises(ValueError):
+            TestListingManager.initialise()
+
+        with open(TestListingManager.DUMMY_MANIFEST_FILE, "w") as f:
+            json.dump(TestListingManager.DUMMY_BLANK_MANIFEST, f)
+        TestListingManager.initialise()
+
+
+        with open(TestListingManager.DUMMY_MANIFEST_FILE, "w") as f:
+            json.dump(TestListingManager.DUMMY_VALID_MANIFEST, f)
+        with open(TestListingManager.DUMMY_LISTING_FILE, "w") as f:
+            json.dump(TestListingManager.DUMMY_LISTING.as_dict(), f)
+        with open(TestListingManager.DUMMY_BAD_LISTING_FILE, f) as f:
+            f.write("This isn't valid JSON.")
+        TestListingManager.initialise()
 
     @unittest.expectedFailure
     def test_1_create_listing(self):

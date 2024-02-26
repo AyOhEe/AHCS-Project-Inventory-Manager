@@ -15,18 +15,13 @@ from configmanager import ConfigManager
 class _ListingManagerInstance:
     def __init__(self, listings_manifest = "listings/manifest.json"):
         #attempt to read the manifest
-        try: 
-            with open(listings_manifest, "r") as f:
-                manifest = json.load(f)
-        except FileNotFoundError:
-            #TODO log error
-            print(f"ListingManager: Unable to find listing manifest at \"{listings_manifest}\"")
-            return
+        with open(listings_manifest, "r") as f:
+            manifest = json.load(f)
         
         #ensure that the manifest is valid
         if not "listings" in manifest:
-            #TODO log error
             print(f"ListingManager: \"{listings_manifest}\" does not contain a \"listings\" entry!")
+            raise ValueError(f"\"{listings_manifest}\" does not contain a \"listings\" entry!")
 
         #attempt to parse each listing
         self.parse_listings(manifest, listings_manifest)
@@ -47,13 +42,10 @@ class _ListingManagerInstance:
                         self.listings.append(listing)
 
             except FileNotFoundError:
-                #TODO log error
                 print(f"ListingManager: Error opening file \"{file_name}\" found in manifest. Skipping...")
             
             except json.JSONDecodeError as jde:
-                #TODO log error
                 print(f"ListingManager: Error parsing file \"{file_name}\" found in manifest. Skipping...")
-                traceback.print_exc()
         
 
     def save_listings(self):
