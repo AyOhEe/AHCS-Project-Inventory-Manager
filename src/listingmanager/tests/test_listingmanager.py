@@ -34,6 +34,7 @@ class TestListingManager(unittest.TestCase):
     def tearDown(self):
         self.remove_manifest()
         self.remove_listing_files()
+        self.remove_config_files()
 
     def remove_manifest(self):
         if os.path.exists(TestListingManager.DUMMY_MANIFEST_FILE):
@@ -45,6 +46,16 @@ class TestListingManager(unittest.TestCase):
         
         if os.path.exists(TestListingManager.DUMMY_BAD_LISTING_FILE):
             os.remove(TestListingManager.DUMMY_BAD_LISTING_FILE)
+
+    def remove_config_files(self):
+        if os.path.exists(TestListingManager.DUMMY_CATEGORIES_FILE):
+            os.remove(TestListingManager.DUMMY_CATEGORIES_FILE)
+
+        if os.path.exists(TestListingManager.DUMMY_MANUFACTURERS_FILE):
+            os.remove(TestListingManager.DUMMY_MANUFACTURERS_FILE)
+
+        if os.path.exists(TestListingManager.DUMMY_CONFIG_FILE):
+            os.remove(TestListingManager.DUMMY_CONFIG_FILE)
         
     def prepare_config(self):
         with open(TestListingManager.DUMMY_CATEGORIES_FILE, "w") as f:

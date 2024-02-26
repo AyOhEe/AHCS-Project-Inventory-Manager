@@ -19,13 +19,17 @@ class TestListing(unittest.TestCase):
     EXAMPLE_DATA = [
         ("Listing 1", "Description 1", 0, 1, 0),
         ("Listing 2", "Description 2", 1, 2, 123),
-        ("Listing 3", "Description 3", 2, 3, -200),
-        ("Listing 4", "", 3, 0, 200),
-        ("", "Description 5", 3, 0, 200),
-        ("Listing 6", "Description 6", -1, 0, 0),
-        ("Listing 7", "Description 7", 0, -1, 0),
-        ("Listing 8", "Description 8", "a", 0, 0),
-        ("Listing 9", "Description 9", 0, "b", 0),
+        ("Listing 3", "Description 3", 3, 0, 200),
+    ]
+
+    CONSTRUCTOR_EXAMPLE_DATA = [
+        (False, "Listing 1", "Description 1", 0, 1, 0),
+        (False, "Listing 2", "Description 2", 1, 2, 123),
+        (True, "Listing 3", "Description 3", 2, 3, -200),
+        (False, "Listing 4", "", 3, 0, 200),
+        (True, "", "Description 5", 3, 0, 200),
+        (True, "Listing 6", "Description 6", -1, 0, 0),
+        (True, "Listing 7", "Description 7", 0, -1, 0)
     ]
 
     def tearDown(self):
@@ -97,15 +101,13 @@ class TestListing(unittest.TestCase):
         listings = []
         should_fail = []
         i = 0
-        for data in TestListing.EXAMPLE_DATA:
+        for fails, *data in TestListing.CONSTRUCTOR_EXAMPLE_DATA:
             file = str(i) + ".json"
             i += 1
             filenames.append(file)
 
-            listing = Listing(*data)
+            listing = Listing(*data, _force_construct = True)
             listings.append(listing)
-            fails = (not isinstance(data[2], int)) or (not isinstance(data[3], int)) \
-                or (data[2] < 0) or (data[3] < 0)
             should_fail.append(fails)
 
             with open(file, "w") as f:
@@ -114,7 +116,8 @@ class TestListing(unittest.TestCase):
         for file, listing, fails in zip(filenames, listings, should_fail):
             f = open(file, "r")
             if fails:
-                self.assertEqual(Listing.from_file(f)[0], None)
+                with self.assertRaises(ValueError):
+                    Listing.from_file(f)
             else:
                 fromfile = Listing.from_file(f)[0]
                 self.assertEqual(fromfile, listing)
@@ -155,7 +158,14 @@ class TestListing(unittest.TestCase):
             self.assertEqual(expected_dict, listing.as_dict())
 
     def test_5_constructor(self):
-        for data in TestListing.EXAMPLE_DATA:
+        for fails, *data in TestListing.CONSTRUCTOR_EXAMPLE_DATA:
+            if fails:
+                #is meant to fail
+                with self.assertRaises(ValueError):
+                    listing = Listing(*data)
+                continue
+
+            #is meant to succeed
             listing = Listing(*data)
 
             self.assertEqual(listing.name, data[0])

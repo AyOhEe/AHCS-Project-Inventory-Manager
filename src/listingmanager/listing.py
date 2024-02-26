@@ -15,10 +15,20 @@ class Listing:
             description: str = "N/A", 
             category: int = 0,
             manufacturer: int = 0,
-            quantity: int = 0
-            ):
-        #TODO validate like all of this
-        self.name = name
+            quantity: int = 0,
+            _force_construct: bool = False #this should never be used in production.
+            ):                             #it exists only for use in testing.
+        if not _force_construct:
+            if name.strip() == "":
+                raise ValueError("Name cannot be blank or similar.")
+            if not isinstance(manufacturer, int) or manufacturer < 0:
+                raise ValueError("Manufacturer must be greater than zero")
+            if not isinstance(category, int) or category < 0:
+                raise ValueError("Category must be greater than zero")
+            if not isinstance(quantity, int) or quantity < 0:
+                raise ValueError("Quantity must be greater than zero")
+
+        self.name = name.strip()
         self.description = description
         self.manufacturer = manufacturer
         self.quantity = quantity
@@ -87,24 +97,4 @@ class Listing:
     @staticmethod 
     def from_file(file_obj: TextIO) -> Tuple[Optional['Listing'], bool]:
         listing_data = json.load(file_obj)
-
-        #replace the category index with the category name
-        if "category" in listing_data:
-            try:
-                index = int(listing_data["category"])
-                if index < 0:
-                    return None, False
-            except ValueError:
-                print("Listing from_file: \"category\" should be a whole (>= 0) number!")
-                return None, False
-
-        if "manufacturer" in listing_data:
-            try:
-                index = int(listing_data["manufacturer"])
-                if index < 0:
-                    return None, False
-            except ValueError:
-                print("Listing from_file: \"manufacturer\" should be a whole (>= 0) number!")
-                return None, False
-
         return Listing(**listing_data), True
