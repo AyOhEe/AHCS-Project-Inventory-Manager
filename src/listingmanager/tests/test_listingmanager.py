@@ -84,7 +84,7 @@ class TestListingManager(unittest.TestCase):
             json.dump(TestListingManager.DUMMY_VALID_MANIFEST, f)
         with open(TestListingManager.DUMMY_LISTING_FILE, "w") as f:
             json.dump(TestListingManager.DUMMY_LISTING.as_dict(), f)
-        with open(TestListingManager.DUMMY_BAD_LISTING_FILE, f) as f:
+        with open(TestListingManager.DUMMY_BAD_LISTING_FILE, "w") as f:
             f.write("This isn't valid JSON.")
         ListingManager.initialise()
 
