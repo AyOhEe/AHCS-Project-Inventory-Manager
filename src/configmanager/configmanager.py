@@ -13,12 +13,14 @@ class _Config:
                 self.config_values = json.load(f)
                 self.config_path = config_path
 
-        except FileNotFoundError:
+        except FileNotFoundError as fnfe:
             print(f"ConfigManager: Could not find {config_path}")
+            raise fnfe
 
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as jde:
             print(f"ConfigManager: {config_path} contains invalid JSON!")
-            traceback.print_exc()
+            raise jde
+
 
     #returns the corresponding value for a set of keys in the configuration
     def get_config_value(self, *keys: List[str]) -> Tuple[bool, Optional[Any]]:
@@ -47,7 +49,7 @@ class _Config:
     def set_config_value(self, value: Any, *keys: List[str]) -> Any:
         def recursive_set(sub_dict, *args):
             if len(args) == 0:
-                raise KeyError("Configuration entry does not exist for ", *keys)
+                raise KeyError("No keys provided")
 
             if len(args) == 1:
                 sub_dict[args[0]] = value

@@ -15,9 +15,20 @@ class Listing:
             description: str = "N/A", 
             category: int = 0,
             manufacturer: int = 0,
-            quantity: int = 0
-            ):
-        self.name = name
+            quantity: int = 0,
+            _force_construct: bool = False #this should never be used in production.
+            ):                             #it exists only for use in testing.
+        if not _force_construct:
+            if name.strip() == "":
+                raise ValueError("Name cannot be blank or similar.")
+            if not isinstance(manufacturer, int) or manufacturer < 0:
+                raise ValueError("Manufacturer must be greater than zero")
+            if not isinstance(category, int) or category < 0:
+                raise ValueError("Category must be greater than zero")
+            if not isinstance(quantity, int) or quantity < 0:
+                raise ValueError("Quantity must be greater than zero")
+
+        self.name = name.strip()
         self.description = description
         self.manufacturer = manufacturer
         self.quantity = quantity
@@ -26,6 +37,22 @@ class Listing:
     def __str__(self) -> str:
         return f"Listing: {self.quantity}*\"{Listing.manufacturers[self.manufacturer]} :: {self.name}\" - {Listing.categories[self.category]}" \
             +f"\n         {self.description[:30]}"
+    
+    def __repr__(self) -> str: #pragma: no cover
+        return self.name
+    
+    def __eq__(self, __value: object) -> bool:
+        if isinstance(__value, Listing):
+            return (self.name == __value.name) \
+            and (self.description == __value.description) \
+            and (self.category == __value.category) \
+            and (self.manufacturer == __value.manufacturer) \
+            and (self.quantity == __value.quantity)
+        
+        return False
+    
+    def __ne__(self, __value: object) -> bool:
+        return not self == __value
 
     def as_dict(self) -> dict:
         return {
@@ -73,26 +100,4 @@ class Listing:
     @staticmethod 
     def from_file(file_obj: TextIO) -> Tuple[Optional['Listing'], bool]:
         listing_data = json.load(file_obj)
-
-        #replace the category index with the category name
-        if "category" in listing_data:
-            try:
-                index = int(listing_data["category"])
-            except ValueError:
-                print("Listing from_file: \"category\" should be a whole (>= 0) number!")
-                return None, False
-
-        if "manufacturer" in listing_data:
-            try:
-                index = int(listing_data["manufacturer"])
-            except ValueError:
-                print("Listing from_file: \"manufacturer\" should be a whole (>= 0) number!")
-                return None, False
-
         return Listing(**listing_data), True
-
-if __name__ == "__main__":   
-    Listing.parse_categories()
-    print(Listing.categories)
-    Listing.parse_manufacturers()
-    print(Listing.manufacturers)
