@@ -4,6 +4,11 @@
             "PIN_hash": "d40da9e902a33e5fbe7908fc10f9ce144b66b05c994f43ea488779b19a528bfc05f29e6b8f9947ad306fc4a31bf0f0bfd192f6c4d8578c9158142c433a517ebe",
             "name": "Default Administrator PIN",
             "has_admin": true
+        },
+        {
+            "PIN_hash": "a2fb3af26693b42ea24197bcc7159205e632bf69570e0f3c1ef508fc5911b943063421651dd144d7d6c38c6930375e33b849272e355a6bac9cc1b0d2d6109667",
+            "name": "John Doe",
+            "has_admin": false
         }
     ]
 }
