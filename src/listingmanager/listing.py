@@ -4,7 +4,6 @@ import json
 from typing import Optional, TextIO, Tuple
 
 
-#record type
 class Listing:
     categories = {0: "Unsorted"}
     manufacturers = {0 : "Manufacturer not listed"}
