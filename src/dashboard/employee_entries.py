@@ -34,7 +34,7 @@ class EmployeeEntriesWindow(tk.Toplevel):
         widgets.append(tk.Checkbutton(table, state=tk.DISABLED))
         if employee.has_admin:
             widgets[-1].select()
-        widgets.append(tk.Button(table, text="Update Entry", command=self.make_update_entry_window))
+        widgets.append(tk.Button(table, text="Update Entry", command=self.make_update_entry_window(employee)))
         widgets.append(tk.Button(table, text="Remove Entry", command=self.remove_entry(employee)))
 
         for i, w in enumerate(widgets):
@@ -42,11 +42,15 @@ class EmployeeEntriesWindow(tk.Toplevel):
 
         return widgets
     
-    def make_update_entry_window(self):
-        self.update_entry_window = UpdateEntryWindow(self)
+
+    def make_update_entry_window(self, employee):
+        return lambda: self._make_update_entry_window(employee)
+    
+    def _make_update_entry_window(self, employee):
+        self.update_entry_window = UpdateEntryWindow(employee, self)
         self.update_entry_window.grab_set()
 
-
+    
     def remove_entry(self, employee):
         return lambda: self._remove_entry(employee)
 
