@@ -12,18 +12,16 @@ class UpdateEntryWindow(tk.Toplevel):
         super().__init__(*args, **kwargs)
         self.debug = debug
 
+
+        self.original_data = employee
+
         #self.resizable(False, False)   
-        self.title("Create new employee entry:")
-        self.title_label = tk.Label(self, text="Create new employee entry:")
+        self.title("Update employee entry:")
+        self.title_label = tk.Label(self, text="Update employee entry:")
 
         self.name_textvar = tk.StringVar(self, value=employee.name)
         self.name_entry = tk.Entry(self, textvariable=self.name_textvar)
         self.name_entry_label = tk.Label(self, text="Name: ")
-
-        self.pin_textvar = tk.StringVar(self, value="")
-        pin_validation = self.register(self.validate_pin)
-        self.pin_entry = tk.Entry(self, textvariable=self.pin_textvar, validate='all', validatecommand=(pin_validation, "%P"))
-        self.pin_entry_label = tk.Label(self, text="New PIN:")
 
         self.admin_boolvar = tk.BooleanVar(self, value=employee.has_admin)
         self.admin_checkbox = tk.Checkbutton(self, variable=self.admin_boolvar)
@@ -37,13 +35,10 @@ class UpdateEntryWindow(tk.Toplevel):
         self.name_entry_label.grid(column=0, row=2)
         self.name_entry.grid(column=3, row=2)
 
-        self.pin_entry_label.grid(column=0, row=3)
-        self.pin_entry.grid(column=3, row=3)
+        self.admin_checkbox_label.grid(column=0, row=3)
+        self.admin_checkbox.grid(column=3, row=3)
 
-        self.admin_checkbox_label.grid(column=0, row=4)
-        self.admin_checkbox.grid(column=3, row=4)
-
-        self.submit_button.grid(column=2, row=6)
+        self.submit_button.grid(column=2, row=5)
 
     def validate_pin(self, P):
         if (str.isdigit(P) or P == ""):
@@ -54,16 +49,9 @@ class UpdateEntryWindow(tk.Toplevel):
     
     def check_is_valid_attempt(self) -> Tuple[bool, str, str]:
         name = self.name_textvar.get()
-        pin = self.pin_textvar.get()
 
         if name.strip() == "":
             return False, "Invalid Name", "Name cannot be empty"
-        
-        if pin.strip() == "":
-            return False, "Invalid PIN", "PIN cannot be empty"
-        
-        if not str.isdigit(pin):
-            return False, "Invalid PIN", "PIN must be a non-negative number"
         
         return True, "", ""
         
@@ -75,11 +63,9 @@ class UpdateEntryWindow(tk.Toplevel):
             return
         
         name = self.name_textvar.get().strip()
-        pin = self.pin_textvar.get().strip()
-        admin = self.admin_boolvar.get()
-        
-        if not PinManager.add_new_employee(pin, EmployeeRecord("", name, admin)):
-            messagebox.showerror("Failure", "Unable to create PIN. Is this PIN already in use?")
-            return
+        has_admin = self.admin_boolvar.get()
+
+        new_employee = EmployeeRecord(self.original_data.PIN_hash, name, has_admin)
+        PinManager.update_employee(self.original_data.PIN_hash, new_employee)
     
         messagebox.showinfo("Success", f"Successfully created PIN entry for {name}")
