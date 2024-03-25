@@ -14,8 +14,8 @@ class CreatePinWindow(tk.Toplevel):
         self.debug = debug
 
         #self.resizable(False, False)   
-        self.title("Create new employee entry:")
-        self.title_label = tk.Label(self, text="Create new employee entry:")
+        self.title("Create new user entry:")
+        self.title_label = tk.Label(self, text="Create new user entry:")
 
         self.name_textvar = tk.StringVar(self, value="John Doe")
         self.name_entry = tk.Entry(self, textvariable=self.name_textvar)
@@ -79,7 +79,7 @@ class CreatePinWindow(tk.Toplevel):
         pin = self.pin_textvar.get().strip()
         admin = self.admin_boolvar.get()
         
-        if not PinManager.add_new_employee(pin, UserDetails("", name, admin)):
+        if not PinManager.add_new_user(pin, UserDetails("", name, admin)):
             messagebox.showerror("Failure", "Unable to create PIN. Is this PIN already in use?")
             return
     

@@ -8,22 +8,22 @@ from typing import Tuple
 from pinmanager import PinManager, UserDetails
 
 class UpdateEntryWindow(tk.Toplevel):
-    def __init__(self, employee, *args, debug=False, **kwargs):
+    def __init__(self, user, *args, debug=False, **kwargs):
         super().__init__(*args, **kwargs)
         self.debug = debug
 
 
-        self.original_data = employee
+        self.original_data = user
 
         #self.resizable(False, False)   
-        self.title("Update employee entry:")
-        self.title_label = tk.Label(self, text="Update employee entry:")
+        self.title("Update user entry:")
+        self.title_label = tk.Label(self, text="Update user entry:")
 
-        self.name_textvar = tk.StringVar(self, value=employee.name)
+        self.name_textvar = tk.StringVar(self, value=user.name)
         self.name_entry = tk.Entry(self, textvariable=self.name_textvar)
         self.name_entry_label = tk.Label(self, text="Name: ")
 
-        self.admin_boolvar = tk.BooleanVar(self, value=employee.has_admin)
+        self.admin_boolvar = tk.BooleanVar(self, value=user.has_admin)
         self.admin_checkbox = tk.Checkbutton(self, variable=self.admin_boolvar)
         self.admin_checkbox_label = tk.Label(self, text="Has administrator privileges? ")
 
@@ -65,7 +65,7 @@ class UpdateEntryWindow(tk.Toplevel):
         name = self.name_textvar.get().strip()
         has_admin = self.admin_boolvar.get()
 
-        new_employee = UserDetails(self.original_data.PIN_hash, name, has_admin)
-        PinManager.update_employee(self.original_data.PIN_hash, new_employee)
+        new_user = UserDetails(self.original_data.PIN_hash, name, has_admin)
+        PinManager.update_user(self.original_data.PIN_hash, new_user)
     
         messagebox.showinfo("Success", f"Successfully updated PIN entry for {name}")

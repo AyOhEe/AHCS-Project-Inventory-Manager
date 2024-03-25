@@ -17,7 +17,7 @@ from configmanager import ConfigManager
 HASH_FUNCTION = lambda x: hashlib.sha512(x.encode('utf-8'), usedforsecurity=True).hexdigest()
 DEFAULT_ADMIN_PIN = "3685368"
 DEFAULT_EMPLOYEE_DATA_JSON = f"""{{
-    "employees" : [
+    "users" : [
         {{
             "PIN_hash" : "{HASH_FUNCTION(DEFAULT_ADMIN_PIN)}",
             "name" : "Default Administrator PIN",
@@ -43,8 +43,8 @@ class UserDetails:
 #managed by PinManager
 class _PinManagerInstance:
     def __init__(self, datapath=None):
-        self.employee_data_file = datapath or ConfigManager.get_config_value("employee data path")[1]
-        self.employee_records = self.read_records()
+        self.user_data_file = datapath or ConfigManager.get_config_value("user data path")[1]
+        self.user_records = self.read_records()
 
         atexit.register(self.on_exit)
 
@@ -52,25 +52,25 @@ class _PinManagerInstance:
     def on_exit(self): #pragma: no cover
         self.save_to_disk()
     
-    #saves all employee data to disk
+    #saves all user data to disk
     def save_to_disk(self):
-        data = { "employees" : []}
+        data = { "users" : []}
 
-        for hash, record in self.employee_records.items():
-            data["employees"].append(record.dict_serialise())
+        for hash, record in self.user_records.items():
+            data["users"].append(record.dict_serialise())
 
-        with open(self.employee_data_file, "w") as f:
+        with open(self.user_data_file, "w") as f:
             json.dump(data, f, indent=4)
 
-    #if the file exists, read the employee PIN hashes and records. otherwise returns empty list
+    #if the file exists, read the user PIN hashes and records. otherwise returns empty list
     def read_records(self):
-        #attempt to open the file containing the employee data (if it exists)
+        #attempt to open the file containing the user data (if it exists)
         try:
-            f = open(self.employee_data_file, "r")
+            f = open(self.user_data_file, "r")
 
         except FileNotFoundError:
             #whoops, doesn't exist, just create it return an empty list for now
-            with open(self.employee_data_file, "w") as f:
+            with open(self.user_data_file, "w") as f:
                 f.write(DEFAULT_EMPLOYEE_DATA_JSON)
             hash = HASH_FUNCTION(DEFAULT_ADMIN_PIN)
             return {hash : UserDetails(hash, "Default Administrator PIN", True)}
@@ -88,8 +88,8 @@ class _PinManagerInstance:
             #or there's been a hardware failure. #TODO adequate response for this scenario
             raise Exception("Employee data file couldn't be read properly. Have you edited it manually? You may have hardware issues.")
 
-        #okay, we read the file successfully. now we create the employee records from it
-        if "employees" not in data:
+        #okay, we read the file successfully. now we create the user records from it
+        if "users" not in data:
             #file no longer in use - close it
             f.close()
 
@@ -99,10 +99,10 @@ class _PinManagerInstance:
         
         #create the list of records from all valid entries
         records_dict = {}
-        for employee in data["employees"]:
-            if ("PIN_hash" in employee) and ("name" in employee) and ("has_admin" in employee):
-                records_dict[employee["PIN_hash"]] = \
-                    UserDetails(employee["PIN_hash"], employee["name"], employee["has_admin"])
+        for user in data["users"]:
+            if ("PIN_hash" in user) and ("name" in user) and ("has_admin" in user):
+                records_dict[user["PIN_hash"]] = \
+                    UserDetails(user["PIN_hash"], user["name"], user["has_admin"])
 
 
         #file no longer in use - close it
@@ -111,76 +111,74 @@ class _PinManagerInstance:
         return records_dict
 
 
-    #returns true if the hash of this pin exists in the employee records
+    #returns true if the hash of this pin exists in the user records
     def verify_pin(self, pin: str, requires_admin: bool) -> bool:
         #hash the pin
         hash = HASH_FUNCTION(pin)
 
         #verify the pin exists
-        valid = hash in self.employee_records
+        valid = hash in self.user_records
         #verify the pin has adequate authority
         if valid:
-            authority = (self.employee_records[hash].has_admin) or (not requires_admin)
+            authority = (self.user_records[hash].has_admin) or (not requires_admin)
         else:
             return False
 
         #the pin is okay if it exists and has sufficient authority for this action
         return valid and authority
     
-    #adds a new employee record to the pin manager with the given pin.
-    #returns the new employee record on success, otherwise returns False
-    def add_new_employee(self, pin: str, employee: UserDetails) -> bool | UserDetails:
+    #adds a new user record to the pin manager with the given pin.
+    #returns the new user record on success, otherwise returns False
+    def add_new_user(self, pin: str, user: UserDetails) -> bool | UserDetails:
         #generate the hash for their PIN
         hash = HASH_FUNCTION(pin)
 
         #ensure that someone does not already share this PIN
-        if hash in self.employee_records:
+        if hash in self.user_records:
             return False
 
-        #store the employee and their hash
-        self.employee_records[hash] = employee
-        self.employee_records[hash].PIN_hash = hash
+        #store the user and their hash
+        self.user_records[hash] = user
+        self.user_records[hash].PIN_hash = hash
         #return the new record for convenience. can be ignored if it's not useful
-        return self.employee_records[hash]
+        return self.user_records[hash]
     
-    #takes an employee hash and replaces their employee record with the supplied one
+    #takes an user hash and replaces their user record with the supplied one
     #returns False on failure and the new record on success
-    def update_employee(self, hash: str, new_record: UserDetails) -> bool | UserDetails:
+    def update_user(self, hash: str, new_record: UserDetails) -> bool | UserDetails:
         #simply do the replacement, authorisation should be managed elsewhere
-        if hash in self.employee_records:
-            self.employee_records[hash] = new_record
+        if hash in self.user_records:
+            self.user_records[hash] = new_record
             #hash might not be supplied in the new record, so set it just in case
-            self.employee_records[hash].PIN_hash = hash 
+            self.user_records[hash].PIN_hash = hash 
             #return the new record for convenience. can be ignored if it's not useful
-            return self.employee_records
+            return self.user_records
         
-        #employee wasn't there, return False to indicate failure
+        #user wasn't there, return False to indicate failure
         return False
         
-    #removes an employee from the records
+    #removes an user from the records
     #returns false on failure, the old record on success
-    def remove_employee(self, hash: str) -> bool | UserDetails:
-        if hash in self.employee_records:
+    def remove_user(self, hash: str) -> bool | UserDetails:
+        if hash in self.user_records:
             #return the old record for convenience. can be ignored if it's not useful
-            return self.employee_records.pop(hash)
+            return self.user_records.pop(hash)
         
-        #employee wasn't there, return False to indicate failure
+        #user wasn't there, return False to indicate failure
         return False
     
-    #returns a copy dictionary (i.e. the user can't modify it) of the employee records
-    def get_employees(self) -> typing.Dict[str, UserDetails]:
-        return dict(self.employee_records)
+    #returns a copy dictionary (i.e. the user can't modify it) of the user records
+    def get_users(self) -> typing.Dict[str, UserDetails]:
+        return dict(self.user_records)
     
-    def get_employee(self, hash: str) -> bool | UserDetails:
-        if hash in self.employee_records:
-            return copy.deepcopy(self.employee_records[hash])
+    def get_user(self, hash: str) -> bool | UserDetails:
+        if hash in self.user_records:
+            return copy.deepcopy(self.user_records[hash])
         
         return False
         
 
 
-
-#TODO rename everything to USER instead of EMPLOYEE
 #class which all PIN requests and changes are directed to. hides an instance of the
 #real pin manager using the singleton design pattern
 class PinManager:
@@ -214,34 +212,34 @@ class PinManager:
     
     @staticmethod
     @check_exists
-    def add_new_employee(pin: str, employee: UserDetails) -> bool | UserDetails:
-        ret = PinManager.__instance.add_new_employee(pin, employee)
+    def add_new_user(pin: str, user: UserDetails) -> bool | UserDetails:
+        ret = PinManager.__instance.add_new_user(pin, user)
         PinManager.__instance.save_to_disk()
         return ret
     
     @staticmethod
     @check_exists
-    def update_employee(hash: str, new_record: UserDetails) -> bool | UserDetails:
-        ret = PinManager.__instance.update_employee(hash, new_record)
+    def update_user(hash: str, new_record: UserDetails) -> bool | UserDetails:
+        ret = PinManager.__instance.update_user(hash, new_record)
         PinManager.__instance.save_to_disk()
         return ret
     
     @staticmethod
     @check_exists
-    def remove_employee(hash: str) -> bool | UserDetails:
-        ret = PinManager.__instance.remove_employee(hash)
+    def remove_user(hash: str) -> bool | UserDetails:
+        ret = PinManager.__instance.remove_user(hash)
         PinManager.__instance.save_to_disk()
         return ret
     
     @staticmethod
     @check_exists
-    def get_employees() -> typing.Dict[str, UserDetails]:
-        return PinManager.__instance.get_employees()
+    def get_users() -> typing.Dict[str, UserDetails]:
+        return PinManager.__instance.get_users()
     
     @staticmethod
     @check_exists
-    def get_employee(hash) -> bool | UserDetails:
-        return PinManager.__instance.get_employee(hash)
+    def get_user(hash) -> bool | UserDetails:
+        return PinManager.__instance.get_user(hash)
     
     @staticmethod
     @check_exists

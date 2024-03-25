@@ -3,7 +3,7 @@ import tkinter as tk
 
 
 from .create_pin import CreatePinWindow
-from .employee_entries import EmployeeEntriesWindow
+from .user_entries import UserEntriesWindow
 
 
 class Dashboard(tk.Tk):
@@ -30,8 +30,8 @@ class Dashboard(tk.Tk):
         self.create_pin_window.grab_set()
 
     def make_user_entries_window(self):
-        self.employee_entries_window = EmployeeEntriesWindow(self)
-        self.employee_entries_window.grab_set()
+        self.user_entries_window = UserEntriesWindow(self)
+        self.user_entries_window.grab_set()
 
     async def async_mainloop(self, update_delay=0.1):
         self.loop_exit_trigger = False

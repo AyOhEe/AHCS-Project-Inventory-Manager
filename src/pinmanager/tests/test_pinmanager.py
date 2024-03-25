@@ -5,7 +5,7 @@ import json
 import os
 
 
-from pinmanager import PinManager, EmployeeRecord
+from pinmanager import PinManager, UserDetails
 from pinmanager.pinmanager import HASH_FUNCTION
 
 
@@ -14,7 +14,7 @@ from unittest import mock
 
 class TestPinManager(unittest.TestCase):
     DUMMY_DATA_PATH = "test_temp_data/dummydata.json"
-    EXAMPLE_EMPLOYEES = employee_data = [
+    EXAMPLE_EMPLOYEES = user_data = [
         ("1234567", "John Doe", True), 
         ("7654321", "Jane Doe", False), 
         ("7801425", "Adam", True)
@@ -23,7 +23,7 @@ class TestPinManager(unittest.TestCase):
     def setUp(self):
         self.remove_data_file()
         with open(TestPinManager.DUMMY_DATA_PATH, "w") as f:
-            json.dump({"employees" : []}, f)
+            json.dump({"users" : []}, f)
 
         PinManager.initialise(TestPinManager.DUMMY_DATA_PATH)
         atexit.unregister(PinManager._PinManager__instance.on_exit)
@@ -45,7 +45,7 @@ class TestPinManager(unittest.TestCase):
         PinManager.initialise(TestPinManager.DUMMY_DATA_PATH)
         atexit.unregister(PinManager._PinManager__instance.on_exit)
 
-        self.assertTrue(len(PinManager.get_employees()) == 1)
+        self.assertTrue(len(PinManager.get_users()) == 1)
 
 
         #invalid json - should raise an execption (not a specific exception class)
@@ -58,19 +58,19 @@ class TestPinManager(unittest.TestCase):
             atexit.unregister(PinManager._PinManager__instance.on_exit)
 
 
-        #doesn't contain an employees entry
+        #doesn't contain an users entry
         self.remove_data_file()
         with open(TestPinManager.DUMMY_DATA_PATH, "w") as f:
             json.dump(dict(), f)
         PinManager.initialise(TestPinManager.DUMMY_DATA_PATH)
         atexit.unregister(PinManager._PinManager__instance.on_exit)
 
-        self.assertEqual(dict(), PinManager.get_employees())
+        self.assertEqual(dict(), PinManager.get_users())
 
 
         #filled with records
-        records = [EmployeeRecord(HASH_FUNCTION(data[0]), data[1], data[2]) for data in TestPinManager.EXAMPLE_EMPLOYEES]
-        filled_dict = {"employees" : [
+        records = [UserDetails(HASH_FUNCTION(data[0]), data[1], data[2]) for data in TestPinManager.EXAMPLE_EMPLOYEES]
+        filled_dict = {"users" : [
             record.dict_serialise() for record in records
         ]}
         expected_result = {record.PIN_hash : record for record in records}
@@ -80,103 +80,103 @@ class TestPinManager(unittest.TestCase):
         PinManager.initialise(TestPinManager.DUMMY_DATA_PATH)
         atexit.unregister(PinManager._PinManager__instance.on_exit)
 
-        self.assertEqual(PinManager.get_employees(), expected_result)
+        self.assertEqual(PinManager.get_users(), expected_result)
 
-    #tests the creation of employee entries
-    def test_1_pinmanager_add_employee(self):
+    #tests the creation of user entries
+    def test_1_pinmanager_add_user(self):
         for data in TestPinManager.EXAMPLE_EMPLOYEES:
             expected_hash = HASH_FUNCTION(data[0])
-            record = EmployeeRecord("", data[1], data[2])
-            ret_val = PinManager.add_new_employee(data[0], record)
+            record = UserDetails("", data[1], data[2])
+            ret_val = PinManager.add_new_user(data[0], record)
 
-            stored_record = PinManager.get_employee(expected_hash)
+            stored_record = PinManager.get_user(expected_hash)
             self.assertEqual(ret_val, stored_record)
             self.assertEqual(expected_hash, stored_record.PIN_hash)
             self.assertEqual(record.name, stored_record.name)
             self.assertEqual(record.has_admin, stored_record.has_admin)
 
-            ret_val = PinManager.add_new_employee(data[0], record)
+            ret_val = PinManager.add_new_user(data[0], record)
             self.assertFalse(ret_val)
 
-    def test_2_pinmanager_update_employee(self):
+    def test_2_pinmanager_update_user(self):
         records = []
         new_records = []
         for data in TestPinManager.EXAMPLE_EMPLOYEES:
-            record = EmployeeRecord("", data[1], data[2])
-            new_record = EmployeeRecord("", data[1] + "_NEW", not data[2])
-            records.append(PinManager.add_new_employee(data[0], record))
+            record = UserDetails("", data[1], data[2])
+            new_record = UserDetails("", data[1] + "_NEW", not data[2])
+            records.append(PinManager.add_new_user(data[0], record))
             new_records.append(new_record)
         
         for record, new_record in zip(records, new_records):
-            self.assertEqual(record, PinManager.get_employee(record.PIN_hash))
-            PinManager.update_employee(record.PIN_hash, new_record)
-            self.assertEqual(new_record, PinManager.get_employee(record.PIN_hash))
+            self.assertEqual(record, PinManager.get_user(record.PIN_hash))
+            PinManager.update_user(record.PIN_hash, new_record)
+            self.assertEqual(new_record, PinManager.get_user(record.PIN_hash))
 
         nonexistent_hashes = ["abcd", "1234", "5678", "efgh"]
         for hash in nonexistent_hashes:
-            self.assertFalse(PinManager.update_employee(hash, EmployeeRecord("", "", "")))
+            self.assertFalse(PinManager.update_user(hash, UserDetails("", "", "")))
 
-    def test_3_pinmanager_remove_employee(self):
-        self.assertEqual(PinManager.get_employees(), dict())
+    def test_3_pinmanager_remove_user(self):
+        self.assertEqual(PinManager.get_users(), dict())
 
         records = []
         for data in TestPinManager.EXAMPLE_EMPLOYEES:
-            record = EmployeeRecord("", data[1], data[2])
-            records.append(PinManager.add_new_employee(data[0], record))
+            record = UserDetails("", data[1], data[2])
+            records.append(PinManager.add_new_user(data[0], record))
         
         for record in records:
-            self.assertEqual(record, PinManager.get_employee(record.PIN_hash))
-            PinManager.remove_employee(record.PIN_hash)
-            self.assertFalse(PinManager.get_employee(record.PIN_hash))
+            self.assertEqual(record, PinManager.get_user(record.PIN_hash))
+            PinManager.remove_user(record.PIN_hash)
+            self.assertFalse(PinManager.get_user(record.PIN_hash))
 
         nonexistent_hashes = ["abcd", "1234", "5678", "efgh"]
         for hash in nonexistent_hashes:
-            self.assertFalse(PinManager.remove_employee(hash))
+            self.assertFalse(PinManager.remove_user(hash))
 
-    def test_4_pinmanager_get_employee(self):
+    def test_4_pinmanager_get_user(self):
         for data in TestPinManager.EXAMPLE_EMPLOYEES:
             expected_hash = HASH_FUNCTION(data[0])
-            self.assertFalse(PinManager.get_employee(expected_hash))
+            self.assertFalse(PinManager.get_user(expected_hash))
 
-            record = EmployeeRecord("", data[1], data[2])
-            PinManager.add_new_employee(data[0], record)
-            self.assertEqual(record, PinManager.get_employee(expected_hash))
+            record = UserDetails("", data[1], data[2])
+            PinManager.add_new_user(data[0], record)
+            self.assertEqual(record, PinManager.get_user(expected_hash))
 
-    def test_5_pinmanager_get_employees(self):
-        self.assertEqual(PinManager.get_employees(), dict())
+    def test_5_pinmanager_get_users(self):
+        self.assertEqual(PinManager.get_users(), dict())
 
         records = []
         for data in TestPinManager.EXAMPLE_EMPLOYEES:
-            record = EmployeeRecord("", data[1], data[2])
-            records.append(PinManager.add_new_employee(data[0], record))
+            record = UserDetails("", data[1], data[2])
+            records.append(PinManager.add_new_user(data[0], record))
 
-            expected_employees = {record.PIN_hash : record for record in records}
-            self.assertEqual(PinManager.get_employees(), expected_employees)
+            expected_users = {record.PIN_hash : record for record in records}
+            self.assertEqual(PinManager.get_users(), expected_users)
 
     def test_6_pinmanager_verify_pin(self):
         for data in TestPinManager.EXAMPLE_EMPLOYEES:
             self.assertFalse(PinManager.verify_pin(data[0], False))
             self.assertFalse(PinManager.verify_pin(data[0], True))
 
-            record = EmployeeRecord("", data[1], data[2])
-            PinManager.add_new_employee(data[0], record)
+            record = UserDetails("", data[1], data[2])
+            PinManager.add_new_user(data[0], record)
 
             self.assertTrue(PinManager.verify_pin(data[0], False))
             self.assertEqual(PinManager.verify_pin(data[0], True), data[2])
 
     def test_7_pinmanager_save_to_disk(self):
-        self.assertEqual(dict(), PinManager.get_employees())
+        self.assertEqual(dict(), PinManager.get_users())
         
         records = []
         for data in TestPinManager.EXAMPLE_EMPLOYEES:
-            record = EmployeeRecord("", data[1], data[2])
-            records.append(PinManager.add_new_employee(data[0], record))
+            record = UserDetails("", data[1], data[2])
+            records.append(PinManager.add_new_user(data[0], record))
 
         PinManager.save_to_disk()
 
 
         expected_data = {
-            "employees" : [record.dict_serialise() for record in records]
+            "users" : [record.dict_serialise() for record in records]
         }
         with open(TestPinManager.DUMMY_DATA_PATH, "r") as f:
             actual_data = json.load(f)
@@ -208,19 +208,19 @@ class TestPinManager(unittest.TestCase):
             PinManager.verify_pin("This doesn't exist and isn't meant to.")
             verify_called()
 
-            PinManager.add_new_employee("1234", EmployeeRecord("", "Test name", False))
+            PinManager.add_new_user("1234", UserDetails("", "Test name", False))
             verify_called()
 
-            PinManager.update_employee("Doesn't exist", EmployeeRecord("", "Test name", False))
+            PinManager.update_user("Doesn't exist", UserDetails("", "Test name", False))
             verify_called()
 
-            PinManager.remove_employee("Doesn't exist")
+            PinManager.remove_user("Doesn't exist")
             verify_called()
 
-            PinManager.get_employees()
+            PinManager.get_users()
             verify_called()
 
-            PinManager.get_employee("Doesn't exist")
+            PinManager.get_user("Doesn't exist")
             verify_called()
 
             PinManager.save_to_disk()
