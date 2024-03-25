@@ -17,7 +17,7 @@ class Dashboard(tk.Tk):
         self.title_label = tk.Label(self, text="Pin manager")
 
         self.create_entry_button = tk.Button(self, text="Create entry", command=self.make_create_pin_window)
-        self.view_entries_button = tk.Button(self, text="View entries", command=self.make_view_entries_window)
+        self.view_entries_button = tk.Button(self, text="View entries", command=self.make_user_entries_window)
 
 
         #place the widgets
@@ -29,7 +29,7 @@ class Dashboard(tk.Tk):
         self.create_pin_window = CreatePinWindow(self)
         self.create_pin_window.grab_set()
 
-    def make_view_entries_window(self):
+    def make_user_entries_window(self):
         self.employee_entries_window = EmployeeEntriesWindow(self)
         self.employee_entries_window.grab_set()
 

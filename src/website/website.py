@@ -131,7 +131,7 @@ class Website(web.Application):
     #region Pages
     
     async def g_index(self, request):
-        context = {'datetime' : str(datetime.now())}
+        context = dict()
         response = aiohttp_jinja2.render_template('index.html.j2',
                                                 request,
                                                 context)
@@ -419,6 +419,7 @@ class Website(web.Application):
         return response
     
 
+    #TODO this
     async def g_auth_error(self, request):
         context = {'datetime' : str(datetime.now())}
         response = aiohttp_jinja2.render_template('index.html.j2',
@@ -426,6 +427,7 @@ class Website(web.Application):
                                                 context)
         return response
     
+    #TODO this
     async def g_generic_error(self, request):
         context = {'datetime' : str(datetime.now())}
         response = aiohttp_jinja2.render_template('index.html.j2',

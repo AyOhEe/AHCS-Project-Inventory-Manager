@@ -5,7 +5,7 @@ from tkinter import messagebox
 from typing import Tuple
 
 
-from pinmanager import PinManager, EmployeeRecord
+from pinmanager import PinManager, UserDetails
 
 
 class CreatePinWindow(tk.Toplevel):
@@ -79,7 +79,7 @@ class CreatePinWindow(tk.Toplevel):
         pin = self.pin_textvar.get().strip()
         admin = self.admin_boolvar.get()
         
-        if not PinManager.add_new_employee(pin, EmployeeRecord("", name, admin)):
+        if not PinManager.add_new_employee(pin, UserDetails("", name, admin)):
             messagebox.showerror("Failure", "Unable to create PIN. Is this PIN already in use?")
             return
     

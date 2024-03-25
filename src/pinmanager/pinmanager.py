@@ -30,7 +30,7 @@ DEFAULT_EMPLOYEE_DATA_JSON = f"""{{
 
     
 @dataclass
-class EmployeeRecord:
+class UserDetails:
     PIN_hash: str = ""
     name: str = ""
     has_admin: bool = False
@@ -73,7 +73,7 @@ class _PinManagerInstance:
             with open(self.employee_data_file, "w") as f:
                 f.write(DEFAULT_EMPLOYEE_DATA_JSON)
             hash = HASH_FUNCTION(DEFAULT_ADMIN_PIN)
-            return {hash : EmployeeRecord(hash, "Default Administrator PIN", True)}
+            return {hash : UserDetails(hash, "Default Administrator PIN", True)}
         
         #variables initialised within a try-except block do not get deleted when that block ends
         #attempt to load the json file as a dictionary
@@ -102,7 +102,7 @@ class _PinManagerInstance:
         for employee in data["employees"]:
             if ("PIN_hash" in employee) and ("name" in employee) and ("has_admin" in employee):
                 records_dict[employee["PIN_hash"]] = \
-                    EmployeeRecord(employee["PIN_hash"], employee["name"], employee["has_admin"])
+                    UserDetails(employee["PIN_hash"], employee["name"], employee["has_admin"])
 
 
         #file no longer in use - close it
@@ -129,7 +129,7 @@ class _PinManagerInstance:
     
     #adds a new employee record to the pin manager with the given pin.
     #returns the new employee record on success, otherwise returns False
-    def add_new_employee(self, pin: str, employee: EmployeeRecord) -> bool | EmployeeRecord:
+    def add_new_employee(self, pin: str, employee: UserDetails) -> bool | UserDetails:
         #generate the hash for their PIN
         hash = HASH_FUNCTION(pin)
 
@@ -145,7 +145,7 @@ class _PinManagerInstance:
     
     #takes an employee hash and replaces their employee record with the supplied one
     #returns False on failure and the new record on success
-    def update_employee(self, hash: str, new_record: EmployeeRecord) -> bool | EmployeeRecord:
+    def update_employee(self, hash: str, new_record: UserDetails) -> bool | UserDetails:
         #simply do the replacement, authorisation should be managed elsewhere
         if hash in self.employee_records:
             self.employee_records[hash] = new_record
@@ -159,7 +159,7 @@ class _PinManagerInstance:
         
     #removes an employee from the records
     #returns false on failure, the old record on success
-    def remove_employee(self, hash: str) -> bool | EmployeeRecord:
+    def remove_employee(self, hash: str) -> bool | UserDetails:
         if hash in self.employee_records:
             #return the old record for convenience. can be ignored if it's not useful
             return self.employee_records.pop(hash)
@@ -168,10 +168,10 @@ class _PinManagerInstance:
         return False
     
     #returns a copy dictionary (i.e. the user can't modify it) of the employee records
-    def get_employees(self) -> typing.Dict[str, EmployeeRecord]:
+    def get_employees(self) -> typing.Dict[str, UserDetails]:
         return dict(self.employee_records)
     
-    def get_employee(self, hash: str) -> bool | EmployeeRecord:
+    def get_employee(self, hash: str) -> bool | UserDetails:
         if hash in self.employee_records:
             return copy.deepcopy(self.employee_records[hash])
         
@@ -180,6 +180,7 @@ class _PinManagerInstance:
 
 
 
+#TODO rename everything to USER instead of EMPLOYEE
 #class which all PIN requests and changes are directed to. hides an instance of the
 #real pin manager using the singleton design pattern
 class PinManager:
@@ -203,8 +204,8 @@ class PinManager:
         return wrapper
 
     @staticmethod
-    def initialise(datapath=None):
-        PinManager.__instance = _PinManagerInstance(datapath)
+    def initialise(data_path=None):
+        PinManager.__instance = _PinManagerInstance(data_path)
 
     @staticmethod
     @check_exists
@@ -213,33 +214,33 @@ class PinManager:
     
     @staticmethod
     @check_exists
-    def add_new_employee(pin: str, employee: EmployeeRecord) -> bool | EmployeeRecord:
+    def add_new_employee(pin: str, employee: UserDetails) -> bool | UserDetails:
         ret = PinManager.__instance.add_new_employee(pin, employee)
         PinManager.__instance.save_to_disk()
         return ret
     
     @staticmethod
     @check_exists
-    def update_employee(hash: str, new_record: EmployeeRecord) -> bool | EmployeeRecord:
+    def update_employee(hash: str, new_record: UserDetails) -> bool | UserDetails:
         ret = PinManager.__instance.update_employee(hash, new_record)
         PinManager.__instance.save_to_disk()
         return ret
     
     @staticmethod
     @check_exists
-    def remove_employee(hash: str) -> bool | EmployeeRecord:
+    def remove_employee(hash: str) -> bool | UserDetails:
         ret = PinManager.__instance.remove_employee(hash)
         PinManager.__instance.save_to_disk()
         return ret
     
     @staticmethod
     @check_exists
-    def get_employees() -> typing.Dict[str, EmployeeRecord]:
+    def get_employees() -> typing.Dict[str, UserDetails]:
         return PinManager.__instance.get_employees()
     
     @staticmethod
     @check_exists
-    def get_employee(hash) -> bool | EmployeeRecord:
+    def get_employee(hash) -> bool | UserDetails:
         return PinManager.__instance.get_employee(hash)
     
     @staticmethod

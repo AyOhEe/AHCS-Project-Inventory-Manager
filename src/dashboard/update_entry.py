@@ -5,7 +5,7 @@ from tkinter import messagebox
 from typing import Tuple
 
 
-from pinmanager import PinManager, EmployeeRecord
+from pinmanager import PinManager, UserDetails
 
 class UpdateEntryWindow(tk.Toplevel):
     def __init__(self, employee, *args, debug=False, **kwargs):
@@ -65,7 +65,7 @@ class UpdateEntryWindow(tk.Toplevel):
         name = self.name_textvar.get().strip()
         has_admin = self.admin_boolvar.get()
 
-        new_employee = EmployeeRecord(self.original_data.PIN_hash, name, has_admin)
+        new_employee = UserDetails(self.original_data.PIN_hash, name, has_admin)
         PinManager.update_employee(self.original_data.PIN_hash, new_employee)
     
-        messagebox.showinfo("Success", f"Successfully created PIN entry for {name}")
+        messagebox.showinfo("Success", f"Successfully updated PIN entry for {name}")

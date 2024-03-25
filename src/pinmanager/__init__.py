@@ -1,2 +1,2 @@
-from .pinmanager import EmployeeRecord
+from .pinmanager import UserDetails
 from .pinmanager import PinManager
