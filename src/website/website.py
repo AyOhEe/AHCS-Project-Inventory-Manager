@@ -29,11 +29,9 @@ def verifies_pin(requires_admin=False):
                 if PinManager.verify_pin(pin, requires_admin):
                     return await request_handler(self, request, *args, **kwargs)
                 else:
-                    #TODO log authentication error
-                    raise web.HTTPFound('/auth_error?reason=invalidpin')
+                    raise web.HTTPFound('/invalid_pin')
             else:
-                #TODO log authentication eror
-                raise web.HTTPFound('/auth_error?reason=nopin')
+                raise web.HTTPBadRequest("Missing PIN")
             
         return wrapper
 
@@ -51,7 +49,7 @@ class Website(web.Application):
         aiohttp_jinja2.setup(self, loader=jinja2.FileSystemLoader(templates_path))
         routes = [
             web.get('/', self.g_index),
-
+            web.get('/help', self.g_help),
 
 
             web.get('/search', self.g_search),
@@ -76,8 +74,7 @@ class Website(web.Application):
 
 
 
-            web.get('/auth_error', self.g_auth_error),
-            web.get('/generic_error', self.g_generic_error),
+            web.get('/invalid_pin', self.g_invalid_pin),
 
 
             web.get('/data/listing_categories.json', self.g_listing_categories),
@@ -137,6 +134,12 @@ class Website(web.Application):
                                                 context)
         return response
 
+    async def g_help(self, request):
+        context = dict()
+        response = aiohttp_jinja2.render_template('help.html.j2',
+                                                request,
+                                                context)
+        return response
     
     async def g_search(self, request):
         context = { 
@@ -419,18 +422,9 @@ class Website(web.Application):
         return response
     
 
-    #TODO this
-    async def g_auth_error(self, request):
-        context = {'datetime' : str(datetime.now())}
-        response = aiohttp_jinja2.render_template('index.html.j2',
-                                                request,
-                                                context)
-        return response
-    
-    #TODO this
-    async def g_generic_error(self, request):
-        context = {'datetime' : str(datetime.now())}
-        response = aiohttp_jinja2.render_template('index.html.j2',
+    async def g_invalid_pin(self, request):
+        context = dict()
+        response = aiohttp_jinja2.render_template('invalid_pin.html.j2',
                                                 request,
                                                 context)
         return response

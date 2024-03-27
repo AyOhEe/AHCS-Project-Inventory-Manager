@@ -6,8 +6,28 @@
             "has_admin": true
         },
         {
+            "PIN_hash": "aed1e5363a7b0e41f04220a7c18e038345e481537caa186bf76dd512fff77a7fbc2488efd3e6299ec4860def79cc40c462d31e3e66b62b588cdd64183a4e74eb",
+            "name": "Jane Doe",
+            "has_admin": false
+        },
+        {
             "PIN_hash": "a2fb3af26693b42ea24197bcc7159205e632bf69570e0f3c1ef508fc5911b943063421651dd144d7d6c38c6930375e33b849272e355a6bac9cc1b0d2d6109667",
             "name": "John Doe",
+            "has_admin": true
+        },
+        {
+            "PIN_hash": "0dc526d8c4fa04084f4b2a6433f4cd14664b93df9fb8a9e00b77ba890b83704d24944c93caa692b51085bb476f81852c27e793600f137ae3929018cd4c8f1a45",
+            "name": "Example User 1",
+            "has_admin": false
+        },
+        {
+            "PIN_hash": "6781a9e05f5e327a138f3d09ce0211ce4f166d940a14b46373e44402a3f3754cab4109f62c50777cbc1e3c4f1b8e6234e8d0b41281571bf0e1bd480c12149830",
+            "name": "Example User 2",
+            "has_admin": false
+        },
+        {
+            "PIN_hash": "4fcfd9010619e20c3f94a00d90503ea807bc0cb95c590fdfc6386af60531d16f7ce7473a5d06aff5ec0998895c66d53ce2d570479f94286c90f15d318b9cd992",
+            "name": "Example User 3.2",
             "has_admin": false
         }
     ]

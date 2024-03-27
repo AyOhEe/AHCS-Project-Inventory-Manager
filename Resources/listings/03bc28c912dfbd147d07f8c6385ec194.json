@@ -1,1 +1,1 @@
-{"name": "Test item - tool", "description": "This is for testing.", "category": 4, "manufacturer": 2, "quantity": 1}
+{"name": "Test item - tool", "description": "This is for testing.\r\n            \r\n            ", "category": 4, "manufacturer": 2, "quantity": 3}

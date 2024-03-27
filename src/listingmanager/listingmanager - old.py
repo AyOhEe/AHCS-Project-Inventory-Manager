@@ -94,11 +94,6 @@ class _ListingManagerInstance:
         return True, None
 
     def update_listing(self, index, new_name, new_description, new_category, new_manufacturer):
-        filename = _ListingManagerInstance.hash(self.listings[index].name) + ".json"
-        filepath = os.path.join(self.directory, filename)
-        if os.path.exists(filepath):
-            os.remove(filepath)
-
         self.listings[index].name = new_name
         self.listings[index].description = new_description
         self.listings[index].category = new_category

@@ -68,5 +68,4 @@ class UpdateEntryWindow(tk.Toplevel):
         new_user = UserDetails(self.original_data.PIN_hash, name, has_admin)
         PinManager.update_user(self.original_data.PIN_hash, new_user)
     
-        self.master.setup()
         messagebox.showinfo("Success", f"Successfully updated PIN entry for {name}")

@@ -12,16 +12,6 @@ class UserEntriesWindow(tk.Toplevel):
         super().__init__(*args, **kwargs)
         self.debug = debug
 
-        self.title_label = None
-        self.entries_table = None
-        self.setup()
-
-    def setup(self):
-        if self.title_label != None:
-            self.title_label.destroy()
-        if self.entries_table != None:
-            self.entries_table.destroy()
-
         self.title("Inventory manager: User entries")
         self.title_label = tk.Label(self, text="User entries:")
 
@@ -33,8 +23,9 @@ class UserEntriesWindow(tk.Toplevel):
 
     def create_table_entries(self, entries_table):
         users = [v for v in PinManager.get_users().values()]
+        table_widgets = []
         for i, e in enumerate(users):
-            self.create_table_entry(entries_table, e, i)
+            table_widgets.append(self.create_table_entry(entries_table, e, i))
 
     def create_table_entry(self, table, user, index):
         widgets = []
@@ -66,7 +57,8 @@ class UserEntriesWindow(tk.Toplevel):
     def _remove_entry(self, user):
         if messagebox.askyesno("Remove Entry", f"Are you sure you would like to remove {user.name}?"):
             if PinManager.remove_user(user.PIN_hash):
-                self.setup()
                 messagebox.showinfo("Success", f"Successfully removed {user.name}")
             else:
                 messagebox.showerror("Failure", "Failed to remove entry. This is most likely a bug, please restart the program and try again.")
+
+        #TODO refresh page
