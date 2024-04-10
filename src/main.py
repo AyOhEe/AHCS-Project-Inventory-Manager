@@ -1,43 +1,34 @@
 import asyncio
 import argparse
 import sys
+import configparser
 
+from aiohttp import web
 
-from dashboard import Dashboard
 from website import Website
-from configmanager import ConfigManager
 from listingmanager import ListingManager
 
 
 
-async def main(args):
+def main(args, config):
     #pre-initialise the listing manager so it is ready as needed 
-    ListingManager.initialise()
+    ListingManager.initialise(config)
 
-    #create the dashboard window
-    window = Dashboard(debug=args.debug)
     #create the website server
     app = Website(args.templates_path, debug=args.debug)
 
-    #start the website in the background
-    await app.start_website(args.host, args.port)
-
-    #start the dashboard window's loop. 
-    #tk.Tk.mainloop is not used as it blocks the main thread, 
-    #blocking asyncio, blocking the website
-    await window.async_mainloop(args.refresh_rate)
-
-    #before exiting the program, clean up the web server
-    await app.destroy_server()
+    #start the website
+    web.run_app(app)
 
 if __name__ == "__main__":
+    config = configparser.ConfigParser()
+    config.read("Resources/config.cfg")
+
     #get the config values which also have command line arguments
-    ConfigManager.initialise("Resources/config.json")
-    debug = ConfigManager.get_config_value("debug")[1]
-    jinja_path = ConfigManager.get_config_value("jinja templates path")[1]
-    hostname = ConfigManager.get_config_value("hostname")[1]
-    port = ConfigManager.get_config_value("port")[1]
-    refresh_rate = ConfigManager.get_config_value("dashboard refresh rate")[1]
+    debug = config.getboolean("Operation", "DebugEnabled")
+    jinja_path = config.get("Operation", "JinjaTemplatesPath")
+    hostname = config.get("Website", "Hostname")
+    port = config.get("Website", "Port")
 
     #parse command line arguments. any provided will take priority over the config values
     parser = argparse.ArgumentParser(
@@ -48,7 +39,6 @@ if __name__ == "__main__":
     parser.add_argument("--templates-path", default=jinja_path)
     parser.add_argument("--host", default=hostname)
     parser.add_argument("--port", default=port)
-    parser.add_argument("--refresh-rate", default=refresh_rate)
     args = parser.parse_args()
 
     if args.debug:
@@ -59,6 +49,6 @@ if __name__ == "__main__":
 
     #don't show an error to the console when ending the application at the command line
     try:
-        asyncio.run(main(args), debug=args.debug)
+        main(args, config)
     except KeyboardInterrupt:
         quit(0)

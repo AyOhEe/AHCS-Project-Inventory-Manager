@@ -12,7 +12,6 @@ from . import Listing
 from configmanager import ConfigManager
 
 
-#TODO private variables
 class _ListingManagerInstance:
     def __init__(self, listings_manifest = "listings/manifest.json"):
         #attempt to read the manifest

@@ -1,11 +1,11 @@
 import unittest
 import json
 import os
+import configparser
 
 
 from listingmanager import ListingManager, Listing
 from listingmanager.listingmanager import _ListingManagerInstance
-from configmanager import ConfigManager
 
 
 class TestListingManager(unittest.TestCase):
@@ -39,10 +39,11 @@ class TestListingManager(unittest.TestCase):
     def setUp(self):
         with open(TestListingManager.DUMMY_CONFIG_FILE, "w") as f:
             json.dump(TestListingManager.DUMMY_CONFIG_DATA, f)
-        ConfigManager.initialise(TestListingManager.DUMMY_CONFIG_FILE)
+        self.config_parser = configparser.ConfigParser()
 
         self.prepare_config()
         self.prepare_blank_manifest()
+        ListingManager.initialise(self.config_parser)
 
     def tearDown(self):
         self.delete_all_listings() 
@@ -78,17 +79,17 @@ class TestListingManager(unittest.TestCase):
 
         
     def prepare_config(self):
+        self.config_parser.add_section("Listings")
+        self.config_parser["Listings"]["CategoriesPath"] = TestListingManager.DUMMY_CATEGORIES_FILE
+        self.config_parser["Listings"]["ManufacturersPath"] = TestListingManager.DUMMY_MANUFACTURERS_FILE
+        self.config_parser["Listings"]["ManifestPath"] = TestListingManager.DUMMY_MANIFEST_FILE
+
         with open(TestListingManager.DUMMY_CATEGORIES_FILE, "w") as f:
-            for category in TestListingManager.DUMMY_CATEGORIES:
-                f.write(category + "\n")
+            f.writelines(TestListingManager.DUMMY_CATEGORIES)
 
         with open(TestListingManager.DUMMY_MANUFACTURERS_FILE, "w") as f:
-            for manufacturer in TestListingManager.DUMMY_MANUFACTURERS:
-                f.write(manufacturer + "\n")
+            f.writelines(TestListingManager.DUMMY_MANUFACTURERS)
 
-        ConfigManager.set_config_value(TestListingManager.DUMMY_CATEGORIES_FILE, "listing categories file")
-        ConfigManager.set_config_value(TestListingManager.DUMMY_MANUFACTURERS_FILE, "listing manufacturers file")
-        ConfigManager.set_config_value(TestListingManager.DUMMY_MANIFEST_FILE, "listings manifest")
 
     def prepare_blank_manifest(self):
         with open(TestListingManager.DUMMY_MANIFEST_FILE, "w") as f:
@@ -96,26 +97,25 @@ class TestListingManager(unittest.TestCase):
 
 
     def test_0_initialise(self):
-        self.assertEqual(ListingManager._ListingManager__instance, None)
         self.assertEqual(ListingManager.get_all_listings(), [])
 
 
         self.remove_manifest()
         with self.assertRaises(FileNotFoundError):
-            ListingManager.initialise(TestListingManager.DUMMY_MANIFEST_FILE)
+            ListingManager.initialise(self.config_parser, TestListingManager.DUMMY_MANIFEST_FILE)
 
         with self.assertRaises(FileNotFoundError):
-            ListingManager.initialise()
+            ListingManager.initialise(self.config_parser)
 
 
         with open(TestListingManager.DUMMY_MANIFEST_FILE, "w") as f:
             json.dump(TestListingManager.DUMMY_BAD_MANIFEST, f)
         with self.assertRaises(ValueError):
-            ListingManager.initialise()
+            ListingManager.initialise(self.config_parser)
 
         with open(TestListingManager.DUMMY_MANIFEST_FILE, "w") as f:
             json.dump(TestListingManager.DUMMY_BLANK_MANIFEST, f)
-        ListingManager.initialise()
+        ListingManager.initialise(self.config_parser)
 
 
         with open(TestListingManager.DUMMY_MANIFEST_FILE, "w") as f:
@@ -124,11 +124,9 @@ class TestListingManager(unittest.TestCase):
             json.dump(TestListingManager.DUMMY_LISTING.as_dict(), f)
         with open(TestListingManager.DUMMY_BAD_LISTING_FILE, "w") as f:
             f.write("This isn't valid JSON.")
-        ListingManager.initialise()
+        ListingManager.initialise(self.config_parser)
 
     def test_1_create_listing(self):
-        ListingManager.initialise(TestListingManager.DUMMY_MANIFEST_FILE)
-
         for data in TestListingManager.EXAMPLE_DATA:
             self.assertEqual(ListingManager.get_listing_index(data[0]), -1)
             self.assertTrue(ListingManager.create_listing(data[0], data[1], data[2], data[3])[0])
@@ -137,8 +135,6 @@ class TestListingManager(unittest.TestCase):
             self.assertNotEqual(ListingManager.get_listing_index(data[0]), -1)
 
     def test_2_update_listing(self):
-        ListingManager.initialise(TestListingManager.DUMMY_MANIFEST_FILE)
-
         for data in TestListingManager.EXAMPLE_DATA:
             ListingManager.create_listing(data[0], data[1], data[2], data[3])
             expected_listing = Listing(data[0], data[1], data[2], data[3], 0)
@@ -155,8 +151,6 @@ class TestListingManager(unittest.TestCase):
             ListingManager.remove_listing(ListingManager.get_listing_index(new_name))
 
     def test_3_remove_listing(self):
-        ListingManager.initialise(TestListingManager.DUMMY_MANIFEST_FILE)
-
         for data in TestListingManager.EXAMPLE_DATA:
             ListingManager.create_listing(data[0], data[1], data[2], data[3])
             index = ListingManager.get_listing_index(data[0])
@@ -171,7 +165,6 @@ class TestListingManager(unittest.TestCase):
         
     def test_4_get_listing_index(self):
         self.assertEqual(ListingManager.get_all_listings(), [])
-        ListingManager.initialise(TestListingManager.DUMMY_MANIFEST_FILE)
 
         expected_index = 0
         for data in TestListingManager.EXAMPLE_DATA:
@@ -181,8 +174,6 @@ class TestListingManager(unittest.TestCase):
             expected_index += 1
         
     def test_5_add_stock(self):
-        ListingManager.initialise(TestListingManager.DUMMY_MANIFEST_FILE)
-
         for data in TestListingManager.EXAMPLE_DATA:
             ListingManager.create_listing(data[0], data[1], data[2], data[3])
             index = ListingManager.get_listing_index(data[0])
@@ -193,8 +184,6 @@ class TestListingManager(unittest.TestCase):
             self.assertEqual(expected_quantity, ListingManager.get_listing(index).quantity)
         
     def test_6_remove_stock(self):
-        ListingManager.initialise(TestListingManager.DUMMY_MANIFEST_FILE)
-
         for data in TestListingManager.EXAMPLE_DATA:
             ListingManager.create_listing(data[0], data[1], data[2], data[3])
             index = ListingManager.get_listing_index(data[0])
@@ -213,8 +202,6 @@ class TestListingManager(unittest.TestCase):
         
 
     def test_7_get_all_listings(self):
-        ListingManager.initialise(TestListingManager.DUMMY_MANIFEST_FILE)
-
         listings = []
         for data in TestListingManager.EXAMPLE_DATA:
             ListingManager.create_listing(data[0], data[1], data[2], data[3])
@@ -225,8 +212,6 @@ class TestListingManager(unittest.TestCase):
         self.assertEqual(listings, ListingManager.get_all_listings())
         
     def test_8_get_listing(self):
-        ListingManager.initialise(TestListingManager.DUMMY_MANIFEST_FILE)
-
         for data in TestListingManager.EXAMPLE_DATA:
             expected_listing = Listing(data[0], data[1], data[2], data[3], 0)
             self.assertEqual(ListingManager.get_listing_index(expected_listing.name), -1)
@@ -238,8 +223,6 @@ class TestListingManager(unittest.TestCase):
             self.assertEqual(ListingManager.get_listing(index), expected_listing)
         
     def test_9_query_listings(self):
-        ListingManager.initialise(TestListingManager.DUMMY_MANIFEST_FILE)
-
         listings = []
         for data in TestListingManager.EXAMPLE_DATA:
             ListingManager.create_listing(data[0], data[1], data[2], data[3])
@@ -263,3 +246,7 @@ class TestListingManager(unittest.TestCase):
 
         for args, expected_result in zip(arguments, expected_results):
             self.assertEqual(expected_result, ListingManager.query_listings(*args))
+
+
+    #TODO test that categories and manufacturers are being correctly parsed
+    #NOTE actually no don't do that, just talk about it instead
