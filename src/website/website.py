@@ -1,21 +1,13 @@
-import asyncio
 import aiohttp_jinja2
 import jinja2
-import os
 
-
-from functools import wraps
-from datetime import datetime
 from aiohttp import web
-
-
 from listingmanager import Listing, ListingManager
 
 
 class Website(web.Application):
-    def __init__(self, templates_path, *args, debug=False, **kwargs):
+    def __init__(self, templates_path, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.debug_mode = debug
         
         aiohttp_jinja2.setup(self, loader=jinja2.FileSystemLoader(templates_path))
         routes = [
@@ -41,24 +33,12 @@ class Website(web.Application):
 
             web.get('/update_listing', self.g_update_listing),
             web.post('/listing_updated', self.p_listing_updated),
-
-
-            web.get('/data/listing_categories.json', self.g_listing_categories),
-            web.get('/data/listing_manufacturers.json', self.g_listing_manufacturers),
         ]
-
-        debug_routes = [
-            web.get('/debug/listing_data', self.__g_listing_data),
-            web.get('/debug/all_listings', self.__g_all_listings),
-        ]
-        if self.debug_mode:
-            routes += debug_routes
 
         self.add_routes(routes)
 
 
-    #region Pages
-    
+    #region Pages    
     async def g_index(self, request):
         context = dict()
         response = aiohttp_jinja2.render_template('index.html.j2',
@@ -92,7 +72,7 @@ class Website(web.Application):
         except KeyError:
             raise web.HTTPBadRequest(reason="Search parameters not supplied")
         except ValueError:
-            raise web.HTTPBadRequest(reason="Non-integer value passed where integer required    ")
+            raise web.HTTPBadRequest(reason="Non-integer value passed where integer required")
         
         results = ListingManager.query_listings(item_name, item_category, item_manufacturer)
 
@@ -117,10 +97,8 @@ class Website(web.Application):
         #extract the name 
         try:
             name = request.rel_url.query["item_name"]
-
         except KeyError:
             #missing values. can't create the listing!
-            #TODO respond with proper error
             raise web.HTTPBadRequest(reason="Incomplete request")
         
         context = {"item_name" : name}
@@ -135,15 +113,11 @@ class Website(web.Application):
         try:
             name = params["item_name"]
             quantity = int(params["quantity"])
-
         except KeyError:
             #missing values. can't create the listing!
-            #TODO respond with proper error
             raise web.HTTPBadRequest(reason="Incomplete request")
-        
         except ValueError:
             #non-integer category or manufacturer
-            #TODO respond with proper error
             raise web.HTTPBadRequest(reason="Non-integer where integer expected")
         
         index = ListingManager.get_listing_index(name)
@@ -163,10 +137,8 @@ class Website(web.Application):
         #extract the name 
         try:
             name = request.rel_url.query["item_name"]
-
         except KeyError:
             #missing values. can't create the listing!
-            #TODO respond with proper error
             raise web.HTTPBadRequest(reason="Incomplete request")
         
         context = {"item_name" : name}
@@ -181,15 +153,11 @@ class Website(web.Application):
         try:
             name = request_json["item_name"]
             quantity = int(request_json["quantity"])
-
         except KeyError:
             #missing values. can't create the listing!
-            #TODO respond with proper error
             raise web.HTTPBadRequest(reason="Incomplete request")
-        
         except ValueError:
             #non-integer category or manufacturer
-            #TODO respond with proper error
             raise web.HTTPBadRequest(reason="Non-integer where integer expected")
         
         index = ListingManager.get_listing_index(name)
@@ -226,12 +194,9 @@ class Website(web.Application):
 
         except KeyError:
             #missing values. can't create the listing!
-            #TODO respond with proper error
             raise web.HTTPBadRequest(reason="Incomplete request")
-        
         except ValueError:
             #non-integer category or manufacturer
-            #TODO respond with proper error
             raise web.HTTPBadRequest(reason="Non-integer where integer expected")
 
         success, reason = ListingManager.create_listing(name, description, category, manufacturer)
@@ -254,10 +219,8 @@ class Website(web.Application):
         #extract the name 
         try:
             name = request.rel_url.query["item_name"]
-
         except KeyError:
             #missing values. can't create the listing!
-            #TODO respond with proper error
             raise web.HTTPBadRequest(reason="Incomplete request")
         
         context = {"item_name" : name}
@@ -271,10 +234,8 @@ class Website(web.Application):
         params = await request.post()
         try:
             name = params["item_name"]
-
         except KeyError:
             #missing values. can't create the listing!
-            #TODO respond with proper error
             raise web.HTTPBadRequest(reason="Incomplete request")
         
         index = ListingManager.get_listing_index(name)
@@ -293,10 +254,8 @@ class Website(web.Application):
         #extract the name 
         try:
             name = request.rel_url.query["item_name"]
-
         except KeyError:
             #missing values. can't create the listing!
-            #TODO respond with proper error
             raise web.HTTPBadRequest(reason="Incomplete request")
         
         index = ListingManager.get_listing_index(name)
@@ -326,15 +285,11 @@ class Website(web.Application):
             new_description = params["item_new_desc"]
             new_category = int(params["item_new_category"])
             new_manufacturer = int(params["item_new_manufacturer"])
-
         except KeyError:
             #missing values. can't create the listing!
-            #TODO respond with proper error
             raise web.HTTPBadRequest(reason="Incomplete request")
-        
         except ValueError:
             #non-integer category or manufacturer
-            #TODO respond with proper error
             raise web.HTTPBadRequest(reason="Non-integer where integer expected")
         
         index = ListingManager.get_listing_index(name)
@@ -348,32 +303,4 @@ class Website(web.Application):
                                                 context)
         return response
     
-
-    async def g_listing_categories(self, request):
-        #TODO fix when Listing gets encapsulation
-        return web.json_response(Listing.categories)
-
-    async def g_listing_manufacturers(self, request):
-        #TODO fix when Listing gets encapsulation
-        return web.json_response(Listing.manufacturers)
-    
-
-    async def __g_listing_data(self, request):
-        context = {
-            "categories" : Listing.categories,
-            "manufacturers" : Listing.manufacturers
-        }
-        response = aiohttp_jinja2.render_template('listing_data.html.j2',
-                                                request,
-                                                context)
-        return response
-    
-    async def __g_all_listings(self, request):
-        context = {
-            "listings" : [str(l) for l in ListingManager.get_all_listings()]
-        }
-        response = aiohttp_jinja2.render_template('all_listings.html.j2',
-                                                request,
-                                                context)
-        return response
     #endregion

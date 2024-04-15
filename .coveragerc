@@ -4,8 +4,8 @@ omit =
 
     ; Tests don't need to be tracked for coverage
     */tests/*
-    src/dashboard/*.py
     src/website/*.py
+    * - old.py
 
 [report]
 ; Regexes for lines to exclude from consideration

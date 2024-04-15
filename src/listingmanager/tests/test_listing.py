@@ -2,7 +2,6 @@ import unittest
 import os
 import json
 
-
 from listingmanager import Listing
 
 

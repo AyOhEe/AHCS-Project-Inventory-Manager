@@ -1,38 +1,34 @@
 import json
-import traceback
 import pathlib
 import hashlib
 import os
 
-
-from functools import wraps
-
-
 from . import Listing
-from configmanager import ConfigManager
 
 
 class _ListingManagerInstance:
     def __init__(self, listings_manifest = "listings/manifest.json"):
+        self.manifest_path = listings_manifest
+
         #attempt to read the manifest
-        with open(listings_manifest, "r") as f:
+        with open(self.manifest_path, "r") as f:
             manifest = json.load(f)
         
         #ensure that the manifest is valid
         if not "listings" in manifest:
-            print(f"ListingManager: \"{listings_manifest}\" does not contain a \"listings\" entry!")
-            raise ValueError(f"\"{listings_manifest}\" does not contain a \"listings\" entry!")
+            print(f"ListingManager: \"{self.manifest_path}\" does not contain a \"listings\" entry!")
+            raise ValueError(f"\"{self.manifest_path}\" does not contain a \"listings\" entry!")
 
         #attempt to parse each listing
-        self.parse_listings(manifest, listings_manifest)
+        self.parse_listings(manifest)
 
     @staticmethod
     def hash(data):
         return hashlib.md5(data.encode("utf-8")).hexdigest()
 
-    def parse_listings(self, manifest, manifest_path):
+    def parse_listings(self, manifest):
         self.listings = []
-        self.directory = pathlib.Path(os.getcwd()).joinpath(pathlib.Path(manifest_path))
+        self.directory = pathlib.Path(os.getcwd()).joinpath(pathlib.Path(self.manifest_path))
         self.directory = pathlib.Path(os.path.join(*self.directory.parts[:-1]))
         for file_name in manifest["listings"]:
             try:
@@ -65,9 +61,6 @@ class _ListingManagerInstance:
             except FileNotFoundError: #pragma: no cover
                 print("Could not open listing file {path}")
 
-
-        
-
     def save_manifest(self):
         listings_manifest = {"listings" : []}
         for l in self.listings:
@@ -76,12 +69,13 @@ class _ListingManagerInstance:
             listings_manifest["listings"].append(filename)
 
         try:
-            with open(ConfigManager.get_config_value("listings manifest")[1], "w") as f:
+            with open(self.manifest_path, "w") as f:
                 json.dump(listings_manifest, f)
         except FileNotFoundError: #pragma: no cover
             print("Could not open listings manifest to save. This should not occur.")
 
         return listings_manifest
+
 
     def create_listing(self, name, desc, category, manufacturer):
         #enforce uniqueness
@@ -130,12 +124,8 @@ class _ListingManagerInstance:
         return self.add_stock(listing_index, -quantity)
 
 
-    def get_all_listings(self):
-        return list(self.listings)
-    
     def get_listing(self, index):
         return self.listings[index]
-
 
     def query_listings(self, name_segment: str, item_category: int, item_manufacturer: int):
         listings = list(self.listings)
@@ -159,7 +149,7 @@ class _ListingManagerInstance:
             current_index = index
             swapped_listing = listings[index]
 
-            while current_index > 0 and listings[current_index - 1].name > swapped_listing.name:
+            while current_index > 0 and (listings[current_index - 1].name > swapped_listing.name):
                 listings[current_index] = listings[current_index - 1]
                 current_index -= 1
 
@@ -169,76 +159,49 @@ class _ListingManagerInstance:
 
 class ListingManager:
     __instance = None
-
-
+    
     @staticmethod
-    def initialise(manifest_path = None):
+    def initialise(config, manifest_path = None):
         if manifest_path == None:
-            manifest_path = ConfigManager.get_config_value("listings manifest")[1]
+            manifest_path = config["Listings"]["ManifestPath"]
 
-        category_file =  ConfigManager.get_config_value("listing categories file")[1]
-        manufacturer_file =  ConfigManager.get_config_value("listing manufacturers file")[1]
+        category_file =  config["Listings"]["CategoriesPath"]
+        manufacturer_file =  config["Listings"]["ManufacturersPath"]
 
         Listing.parse_categories(category_file)
         Listing.parse_manufacturers(manufacturer_file)
         ListingManager.__instance = _ListingManagerInstance(manifest_path)
 
 
-    #ensures that an instance of the listing manager exists before running the wrapped function
-    def check_exists(f):
-
-        @wraps(f)
-        def wrapper(*args, **kwargs):
-            if ListingManager.__instance == None:
-                ListingManager.initialise()
-
-            return f(*args, **kwargs)
-
-        return wrapper
-    
-
     @staticmethod
-    @check_exists
     def create_listing(name, desc, category, manufacturer):
         return ListingManager.__instance.create_listing(name, desc, category, manufacturer)
     
     @staticmethod
-    @check_exists
     def update_listing(index, new_name, new_description, new_category, new_manufacturer):
         return ListingManager.__instance.update_listing(index, new_name, new_description, new_category, new_manufacturer)
     
     @staticmethod
-    @check_exists
     def remove_listing(listing_index):
         return ListingManager.__instance.remove_listing(listing_index)
-    
-    @staticmethod
-    @check_exists
-    def get_listing_index(name):
-        return ListingManager.__instance.get_listing_index(name)
 
     @staticmethod
-    @check_exists
     def add_stock(listing, quantity):
         return ListingManager.__instance.add_stock(listing, quantity)
     
     @staticmethod
-    @check_exists
     def remove_stock(listing, quantity):
         return ListingManager.__instance.remove_stock(listing, quantity)
-    
+
 
     @staticmethod
-    @check_exists
-    def get_all_listings():
-        return ListingManager.__instance.get_all_listings()
+    def get_listing_index(name):
+        return ListingManager.__instance.get_listing_index(name)
     
     @staticmethod
-    @check_exists
     def get_listing(index):
         return ListingManager.__instance.get_listing(index)
     
     @staticmethod
-    @check_exists
     def query_listings(name_segment, item_category, item_manufacturer):
         return ListingManager.__instance.query_listings(name_segment, item_category, item_manufacturer)

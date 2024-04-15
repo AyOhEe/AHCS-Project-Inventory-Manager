@@ -1,4 +1,3 @@
-import asyncio
 import argparse
 import sys
 import configparser
@@ -15,17 +14,16 @@ def main(args, config):
     ListingManager.initialise(config)
 
     #create the website server
-    app = Website(args.templates_path, debug=args.debug)
+    app = Website(args.templates_path)
 
     #start the website
     web.run_app(app)
 
 if __name__ == "__main__":
+    #get the config values which also have command line arguments
     config = configparser.ConfigParser()
     config.read("Resources/config.cfg")
 
-    #get the config values which also have command line arguments
-    debug = config.getboolean("Operation", "DebugEnabled")
     jinja_path = config.get("Operation", "JinjaTemplatesPath")
     hostname = config.get("Website", "Hostname")
     port = config.get("Website", "Port")
@@ -35,14 +33,11 @@ if __name__ == "__main__":
                     prog='Inventory Manager',
                     description='Hosts a web interface and local dashboard for managing stock inventory.',
                     )
-    parser.add_argument("--debug", default=debug, action='store_true') #debug flag
     parser.add_argument("--templates-path", default=jinja_path)
     parser.add_argument("--host", default=hostname)
     parser.add_argument("--port", default=port)
     args = parser.parse_args()
 
-    if args.debug:
-        print("[[WARNING]] - Running in debug mode. Do not use this in production!")
     if len(sys.argv) > 1: #we still accept one argument as main.py must be passed to python
         print(len(sys.argv))
         print("[[WARNING]] - Command-line arguments have been provided. These will override values in config.cfg!")

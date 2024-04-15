@@ -1,17 +1,11 @@
 import json
-import traceback
 import pathlib
 import hashlib
 import os
 
-
-from functools import wraps
-
-
 from . import Listing
 
 
-#TODO private variables
 class _ListingManagerInstance:
     def __init__(self, listings_manifest = "listings/manifest.json"):
         self.manifest_path = listings_manifest
@@ -67,9 +61,6 @@ class _ListingManagerInstance:
             except FileNotFoundError: #pragma: no cover
                 print("Could not open listing file {path}")
 
-
-        
-
     def save_manifest(self):
         listings_manifest = {"listings" : []}
         for l in self.listings:
@@ -84,6 +75,7 @@ class _ListingManagerInstance:
             print("Could not open listings manifest to save. This should not occur.")
 
         return listings_manifest
+
 
     def create_listing(self, name, desc, category, manufacturer):
         #enforce uniqueness
@@ -137,12 +129,8 @@ class _ListingManagerInstance:
         return self.add_stock(listing_index, -quantity)
 
 
-    def get_all_listings(self):
-        return list(self.listings)
-    
     def get_listing(self, index):
         return self.listings[index]
-
 
     def query_listings(self, name_segment: str, item_category: int, item_manufacturer: int):
         listings = list(self.listings)
@@ -173,10 +161,15 @@ class _ListingManagerInstance:
             listings[current_index] = swapped_listing 
             
         return listings
+    
+    
+    #only exists for the purposes of testing
+    def get_all_listings(self):
+        return list(self.listings)
+
 
 class ListingManager:
     __instance = None
-
 
     @staticmethod
     def initialise(config, manifest_path = None):
@@ -202,10 +195,6 @@ class ListingManager:
     @staticmethod
     def remove_listing(listing_index):
         return ListingManager.__instance.remove_listing(listing_index)
-    
-    @staticmethod
-    def get_listing_index(name):
-        return ListingManager.__instance.get_listing_index(name)
 
     @staticmethod
     def add_stock(listing, quantity):
@@ -214,15 +203,19 @@ class ListingManager:
     @staticmethod
     def remove_stock(listing, quantity):
         return ListingManager.__instance.remove_stock(listing, quantity)
-    
+
 
     @staticmethod
-    def get_all_listings():
-        return ListingManager.__instance.get_all_listings()
+    def get_listing_index(name):
+        return ListingManager.__instance.get_listing_index(name)
     
     @staticmethod
     def get_listing(index):
         return ListingManager.__instance.get_listing(index)
+    
+    @staticmethod
+    def get_all_listings():
+        return ListingManager.__instance.get_all_listings()
     
     @staticmethod
     def query_listings(name_segment, item_category, item_manufacturer):

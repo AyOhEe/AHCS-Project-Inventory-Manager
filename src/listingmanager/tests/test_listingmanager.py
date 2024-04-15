@@ -3,7 +3,6 @@ import json
 import os
 import configparser
 
-
 from listingmanager import ListingManager, Listing
 from listingmanager.listingmanager import _ListingManagerInstance
 
